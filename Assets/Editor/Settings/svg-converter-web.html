@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SVG zu PNG Konverter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+            background: #f5f5f5;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin: 10px 0;
+            font-family: monospace;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .preview {
+            border: 1px solid #ccc;
+            margin: 10px 0;
+            padding: 10px;
+            text-align: center;
+            background: white;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>SVG zu PNG Konverter</h1>
+    <button onclick="window.open('https://fonts.google.com/icons', '_blank')" style="background: #0004ff;">Google Icons</button>
+    
+    <div style="margin-bottom: 20px;">
+        <input type="text" id="fileName" placeholder="Dateiname eingeben (ohne .png)" 
+            style="padding: 8px; margin-right: 10px; width: 250px; border: 1px solid #ccc; border-radius: 4px;"
+            oninput="updateFileNames()">
+        <button onclick="convertBoth()" style="background: #28a745;">Beide PNGs speichern</button>
+    </div>
+
+    <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 4px;">
+        <div style="margin-bottom: 10px;">
+            <span style="font-weight: bold;">Background: </span>
+            <span id="bigFileName">icon.png</span>
+            <button onclick="copyFileName('big')" style="margin-left: 10px; padding: 4px 8px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Kopieren
+            </button>
+        </div>
+        <div>
+            <span style="font-weight: bold;">icons: </span>
+            <span id="smallFileName">icon_icon.png</span>
+            <button onclick="copyFileName('small')" style="margin-left: 10px; padding: 4px 8px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Kopieren
+            </button>
+        </div>
+    </div>
+    
+    <textarea id="svgInput" placeholder="SVG Code hier einfügen..."><?xml version="1.0" encoding="UTF-8"?>
+<svg width="500" height="500" viewBox="0 0 500 500" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(100,100) scale(0.6)">
+        <circle cx="250" cy="250" r="80" fill="white"/>
+        <path d="M 250 170 A 80 80 0 0 1 330 250 L 400 250 A 150 150 0 0 0 250 100 Z" fill="white"/>
+        <path d="M 330 250 A 80 80 0 0 1 250 330 L 250 400 A 150 150 0 0 0 400 250 Z" fill="white"/>
+    </g>
+</svg></textarea>
+    
+    <div class="preview">
+        <h3>Vorschau:</h3>
+        <div id="preview"></div>
+    </div>
+
+    <script>
+        function updateFileNames() {
+            const baseName = document.getElementById('fileName').value || 'icon';
+            document.getElementById('bigFileName').textContent = `${baseName}.png`;
+            document.getElementById('smallFileName').textContent = `${baseName}_icon.png`;
+        }
+
+        function copyFileName(type) {
+            const text = document.getElementById(type === 'big' ? 'bigFileName' : 'smallFileName').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Kopiert!';
+                button.style.background = '#28a745';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#6c757d';
+                }, 1000);
+            });
+        }
+
+        function convertToWhite(svgText) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(svgText, 'image/svg+xml');
+            
+            // Funktion zum Rekursiven Durchlaufen und Ändern der Farben
+            function makeWhite(element) {
+                // Liste der Attribute, die Farben enthalten können
+                const colorAttributes = ['fill', 'stroke'];
+                
+                // Alle Farb-Attribute auf weiß setzen
+                colorAttributes.forEach(attr => {
+                    if (element.getAttribute(attr) && 
+                        element.getAttribute(attr) !== 'none' && 
+                        element.getAttribute(attr) !== 'transparent') {
+                        element.setAttribute(attr, 'white');
+                    }
+                });
+                
+                // Style-Attribute behandeln
+                if (element.getAttribute('style')) {
+                    let style = element.getAttribute('style');
+                    style = style.replace(/fill:[^;]+/g, 'fill:white')
+                                .replace(/stroke:[^;]+/g, 'stroke:white');
+                    element.setAttribute('style', style);
+                }
+                
+                // Rekursiv für alle Kinder durchführen
+                Array.from(element.children).forEach(makeWhite);
+            }
+            
+            makeWhite(doc.documentElement);
+            return new XMLSerializer().serializeToString(doc);
+        }
+
+        function convertBoth() {
+            const fileName = document.getElementById('fileName').value || 'icon';
+            convertToPNG(40, `${fileName}_icon`);
+            convertToPNG(500, fileName);
+        }
+        
+        function convertToPNG(size, fileName) {
+            let svgText = document.getElementById('svgInput').value;
+            
+            // SVG in Weiß konvertieren
+            svgText = convertToWhite(svgText);
+            
+            // SVG in Blob konvertieren
+            const blob = new Blob([svgText], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            
+            // Neue Image erstellen
+            const img = new Image();
+            img.onload = function() {
+                // Canvas erstellen
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                
+                // Canvas transparent machen
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // SVG auf Canvas zeichnen
+                ctx.drawImage(img, 0, 0, size, size);
+                
+                // Für 500px Version den Verlauf hinzufügen
+                if (size === 500) {
+                    // Gradient erstellen - von oben rechts nach unten links, geringe Deckkraft
+                    const gradient = ctx.createLinearGradient(size, 0, 0, size);
+                    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+                    gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.15)');
+                    gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.1)');
+                    gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.05)');
+                    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                    
+                    // Existierendes Bild als Maske verwenden
+                    ctx.globalCompositeOperation = 'destination-in';
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, size, size);
+                }
+                
+                // Als PNG herunterladen
+                const link = document.createElement('a');
+                link.download = `${fileName}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                // Cleanup
+                URL.revokeObjectURL(url);
+            };
+            img.src = url;
+            
+            // Vorschau aktualisieren
+            updatePreview(svgText);
+        }
+        
+        function updatePreview(svgText) {
+            // Vorschau auch in Weiß konvertieren
+            const whiteVersion = convertToWhite(svgText);
+            const preview = document.getElementById('preview');
+            preview.innerHTML = whiteVersion;
+        }
+        
+        // Initial preview
+        updatePreview(document.getElementById('svgInput').value);
+    </script>
+</body>
+</html>

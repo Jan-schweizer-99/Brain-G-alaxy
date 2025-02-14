@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -25,10 +26,10 @@ public class OllamaUIDisplay : MonoBehaviour
     private OllamaIntegration.ResponseUpdateHandler responseUpdateHandler;
     private OllamaIntegration.GenerationHandler generationStartHandler;
     private OllamaIntegration.GenerationHandler generationCompleteHandler;
-
+/**/
 #if UNITY_EDITOR
     [CustomEditor(typeof(OllamaUIDisplay))]
-    public class OllamaUIDisplayEditor : Editor
+    public class OllamaUIDisplayEditor : CustomBaseEditor
     {
         private SerializedProperty ollamaIntegrationProp;
         private SerializedProperty outputTextProp;
@@ -38,6 +39,7 @@ public class OllamaUIDisplay : MonoBehaviour
 
         private void OnEnable()
         {
+            SetEditorStyle("Deepseek");// set style for custom Editor
             ollamaIntegrationProp = serializedObject.FindProperty("ollamaIntegration");
             outputTextProp = serializedObject.FindProperty("outputText");
             mathFontProp = serializedObject.FindProperty("mathFont");
@@ -47,6 +49,7 @@ public class OllamaUIDisplay : MonoBehaviour
 
         public override void OnInspectorGUI()
         {
+             base.OnInspectorGUI(); // Dies ist wichtig für den Hintergrund und das Logo
             serializedObject.Update();
 
             var script = (OllamaUIDisplay)target;
@@ -61,9 +64,9 @@ public class OllamaUIDisplay : MonoBehaviour
                 EditorGUILayout.HelpBox("OllamaIntegration reference is required!", MessageType.Error);
             }
 
-            EditorGUILayout.PropertyField(ollamaIntegrationProp);
-            EditorGUILayout.PropertyField(outputTextProp);
-            EditorGUILayout.PropertyField(mathFontProp);
+            //EditorGUILayout.PropertyField(ollamaIntegrationProp);
+            //EditorGUILayout.PropertyField(outputTextProp);
+            //EditorGUILayout.PropertyField(mathFontProp);
             
             EditorGUI.indentLevel--;
             EditorGUILayout.Space(10);

@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d92387dcc33d7c54c9773313d67947d3, type: 3}
+  m_Name: EditorSettings
+  m_EditorClassIdentifier: 
+  editorStyles:
+  - styleName: DEBUG
+    backgroundColor: {r: 0, g: 0, b: 0, a: 0.5}
+    logoPath: Assets/Editor/Backgroundlogos/Debug.png
+    iconPath: Assets/Editor/Backgroundlogos/Debug_icon.png
+    description: Tools and utilities for debugging and development purposes
+  - styleName: Network
+    backgroundColor: {r: 1, g: 0, b: 0, a: 0.5}
+    logoPath: Assets/Editor/Backgroundlogos/Network.png
+    iconPath: Assets/Editor/Backgroundlogos/Network_icon.png
+    description: Network configuration and multiplayer management tools
+  - styleName: Player
+    backgroundColor: {r: 1, g: 0.7, b: 0, a: 0.5}
+    logoPath: Assets/Editor/Backgroundlogos/Player.png
+    iconPath: Assets/Editor/Backgroundlogos/Player_icon.png
+    description: Player character settings and controller configuration
+  - styleName: World
+    backgroundColor: {r: 0, g: 1, b: 0, a: 0.5}
+    logoPath: Assets/Editor/Backgroundlogos/World.png
+    iconPath: Assets/Editor/Backgroundlogos/World_icon.png
+    description: World building tools and environment settings
+  - styleName: VFX
+    backgroundColor: {r: 1, g: 0, b: 1, a: 0.5}
+    logoPath: Assets/Editor/Backgroundlogos/VFX.png
+    iconPath: Assets/Editor/Backgroundlogos/VFX_icon.png
+    description: Visual effects and particle system configuration
+  - styleName: Tasks
+    backgroundColor: {r: 0, g: 0.7, b: 1, a: 0.5}
+    logoPath: Assets/Editor/Backgroundlogos/Tasks.png
+    iconPath: Assets/Editor/Backgroundlogos/Tasks_icon.png
+    description: Task management and project workflow organization
+  - styleName: microscripts
+    backgroundColor: {r: 0.5, g: 0, b: 1, a: 0.5}
+    logoPath: Assets/Editor/Backgroundlogos/microscripts.png
+    iconPath: Assets/Editor/Backgroundlogos/microscripts_icon.png
+    description: Small utility scripts and helper functions management
+  - styleName: Tracking
+    backgroundColor: {r: 1, g: 0.5, b: 0, a: 0.5}
+    logoPath: Assets/Editor/Backgroundlogos/Tracking.png
+    iconPath: Assets/Editor/Backgroundlogos/Tracking_icon.png
+    description: Movement and object tracking system configuration
+  additionalBackgroundHeight: 0

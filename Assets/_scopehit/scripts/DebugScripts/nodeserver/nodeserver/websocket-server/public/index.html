@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unity WebSocket Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .control-panel {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .button-container {
+            display: grid;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 15px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .TVrandom {
+            background-color: #007bff;
+            color: white;
+        }
+        .PCrandom {
+            background-color: #ff00dd;
+            color: white;
+        }
+        .jumpscare {
+            background-color: #dc3545;
+            color: white;
+        }
+        .persons {
+            background-color: #28a745;
+            color: white;
+        }
+        .control {
+            background-color: #6c757d;
+            color: white;
+        }
+        .room {
+            background-color: #000000;
+            color: white;
+        }
+        .Postprocessing {
+            background-color: #f0f0f0;
+            color: black;
+        }
+        .VFX {
+            background-color: #36002e;
+            color: black;
+        }
+        .hacks {
+            background-color: #00f3ef;
+            color: black;
+        }
+        .log {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 5px 0;
+            font-family: monospace;
+        }
+        .connection-info {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="control-panel">
+        <div class="connection-info">
+            <strong>WebSocket URL:</strong> <span id="wsUrl"></span>
+            <div id="ipAddress"></div>
+        </div>
+        
+        <div id="statusIndicator" class="status disconnected">
+            Nicht verbunden
+        </div>
+        
+        <div class="button-container">
+            <text>DEBUG</text>
+
+
+            <button id="Debug-01-Elefant-to-desk" class="hacks">Debug-01-Elefant-to-desk</button>
+            <button id="Debug-02-Lay-Down" class="hacks">Debug-02-Lay-Down</button>
+            <button id="Debug-03-swallow-Pills" class="hacks">Debug-03-swallow-Pills</button>
+            <button id="Debug-x-Build-Tablet" class="hacks">Debug-x-Build-Tablet</button>
+            <button id="Debug-04-Lay-Down" class="hacks">Debug-04-Lay-Down</button>
+            <button id="Debug-05-Forrest" class="hacks">Debug-05-Forrest Task</button>
+
+            <button id="SynchronizeRoom" class="control">SynchronizeRoom</button>
+            <button id="TurnOffallLights" class="control">Turn Off all Lights</button>
+            <button id="TurnOnallLights" class="control">Turn On all Lights</button>
+            
+            
+            <button id="Tutorial" class="room">Tutorial</button>
+            <button id="BaseGame" class="room">The Room</button>
+            <button id="Forrest" class="room">Forrest</button>
+
+            <button id="DisablePP" class="Postprocessing">Disable All</button>
+            <button id="DrunkFirst" class="Postprocessing">DrunkFirst</button>
+            <button id="Drunk" class="Postprocessing">Drunk</button>
+            <button id="BlackAndWhite" class="Postprocessing">Black and White</button>
+            <button id="Fear" class="Postprocessing">Fear</button>
+            <button id="PPAudioReactive" class="Postprocessing">Post Processing Audio Reaktive</button>
+            <button id="PPForrest" class="Postprocessing">Post Processing Forrest</button>
+
+            
+            
+            <button id="BlackAndWhite100" class="Postprocessing">Black and White 100%</button>
+            <button id="BlackAndWhite75" class="Postprocessing">Black and White 75%</button>
+            <button id="BlackAndWhite50" class="Postprocessing">Black and White 50%</button>
+            <button id="BlackAndWhite25" class="Postprocessing">Black and White 25%</button>
+            <button id="BlackAndWhite0" class="Postprocessing">Black and White 0%</button>
+
+            <button id="ActivateTextexplosion" class="VFX">Textexplosion ON</button>
+            <button id="DeactivateTextexplosion" class="VFX">Textexplosion OFF</button>
+            
+            <text>FUN</text>
+            <button id="Enablecustomgame" class="control">Enablecustomgame</button>
+            
+            <button id="01-Jirka" class="persons">01-guckuck Hallo</button>
+            <button id="02-Jirka" class="persons">02-vergessen</button>
+            <button id="03-Jirka" class="persons">03-Hast du angst</button>
+            <button id="04-Jirka" class="persons">04-Pinnwand</button>
+            <button id="05-Jirka" class="persons">05-dreh dich mal um</button>
+            <button id="06-Jirka" class="persons">06-ich erschrecke dich nicht</button>
+            <button id="jumpscare" class="jumpscare">jumpscare</button>
+            <button id="07-Jirka" class="persons">07-dreist ins gesicht gelogen</button>
+            <button id="08-Jirka" class="persons">08-gamedesigne Dokument</button>
+            <button id="09-Jirka" class="persons">09-Ende Gut alles gut</button>
+
+        </div>
+
+        <div class="log" id="messageLog">
+            <div class="log-entry">Bereit zum Senden von Events...</div>
+        </div>
+    </div>
+
+    <script>
+        let ws;
+        const statusIndicator = document.getElementById('statusIndicator');
+        const messageLog = document.getElementById('messageLog');
+        const wsUrlDisplay = document.getElementById('wsUrl');
+        const ipAddressDisplay = document.getElementById('ipAddress');
+
+        // Hole die IP-Adresse direkt aus der aktuellen URL
+        const currentHost = window.location.hostname;
+        const wsUrl = `ws://${currentHost}:8080`;
+        wsUrlDisplay.textContent = wsUrl;
+        ipAddressDisplay.textContent = `Server IP: ${currentHost}`;
+
+        function connect() {
+            if (ws) {
+                ws.close();
+            }
+
+            try {
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = () => {
+                    statusIndicator.textContent = 'Verbunden';
+                    statusIndicator.classList.remove('disconnected');
+                    statusIndicator.classList.add('connected');
+                    logMessage('WebSocket Verbindung hergestellt');
+                };
+
+                ws.onclose = () => {
+                    statusIndicator.textContent = 'Nicht verbunden';
+                    statusIndicator.classList.remove('connected');
+                    statusIndicator.classList.add('disconnected');
+                    logMessage('WebSocket Verbindung getrennt');
+                    setTimeout(connect, 2000);
+                };
+
+                ws.onerror = (error) => {
+                    logMessage('WebSocket Fehler: ' + error.message);
+                };
+
+                ws.onmessage = (event) => {
+                    logMessage('Nachricht empfangen: ' + event.data);
+                };
+            } catch (error) {
+                logMessage('Fehler beim Verbindungsaufbau: ' + error.message);
+                setTimeout(connect, 2000);
+            }
+        }
+
+        function sendEvent(type, data = "") {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                const message = {
+                    type: type,
+                    data: data
+                };
+                ws.send(JSON.stringify(message));
+                logMessage('Event gesendet: ' + JSON.stringify(message));
+            } else {
+                logMessage('Fehler: Keine Verbindung zum Server');
+            }
+        }
+
+        function logMessage(message) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            messageLog.appendChild(entry);
+            messageLog.scrollTop = messageLog.scrollHeight;
+
+            // Begrenze die Anzahl der Log-Einträge
+            while (messageLog.children.length > 50) {
+                messageLog.removeChild(messageLog.firstChild);
+            }
+        }
+
+        // Event Listener für alle Buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', () => {
+                sendEvent(button.id);
+            });
+        });
+
+        // Initiale Verbindung
+        connect();
+
+        // Automatische Wiederverbindung bei Verbindungsverlust
+        setInterval(() => {
+            if (!ws || ws.readyState === WebSocket.CLOSED) {
+                console.log("Versuche Wiederverbindung...");
+                connect();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
