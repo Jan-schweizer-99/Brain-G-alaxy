@@ -207,7 +207,7 @@ public class IslandPrefabManager : MonoBehaviour
 }
 
 [CustomEditor(typeof(IslandPrefabManager))]
-public class IslandPrefabManagerEditor : Editor
+public class IslandPrefabManagerEditor : CustomBaseEditor
 {
     private ReorderableList islandList;
     private List<IslandData> islands = new List<IslandData>();
@@ -224,6 +224,7 @@ public class IslandPrefabManagerEditor : Editor
 
     private void OnEnable()
     {
+        SetEditorStyle("IslandSystem");
         manager = (IslandPrefabManager)target;
         RefreshIslandLists();
         SetupReorderableList();
@@ -373,7 +374,8 @@ public class IslandPrefabManagerEditor : Editor
 
     public override void OnInspectorGUI()
     {
-        DrawDefaultInspector();
+        //DrawDefaultInspector();
+        base.OnInspectorGUI(); // Dies ist wichtig für den Hintergrund und das Logo
 
         EditorGUILayout.Space(10);
         if (GUILayout.Button("Neue Insel erstellen"))

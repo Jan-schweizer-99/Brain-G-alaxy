@@ -4,6 +4,20 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
+
+
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(ConicalSpiralIslandPlacer))]
+public class ConicalSpiralIslandPlacerEditor : CustomBaseEditor
+{
+    protected override void OnEnable()
+    {
+        SetEditorStyle("IslandSystem");
+    }
+
+}
+#endif
 [ExecuteInEditMode]
 public class ConicalSpiralIslandPlacer : MonoBehaviour
 {

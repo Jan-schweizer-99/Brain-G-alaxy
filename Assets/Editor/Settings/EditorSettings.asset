@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   editorStyles:
   - styleName: Deepseek
-    backgroundColor: {r: 0, g: 0.60258484, b: 1, a: 0.5}
+    backgroundColor: {r: 1, g: 0.7395831, b: 0, a: 0.5}
     logoPath: Assets/Editor/Backgroundlogos/Deepseek.png
     iconPath: Assets/Editor/Backgroundlogos/Deepseek_icon.png
     description: Movement and object tracking system configuration
@@ -57,5 +57,15 @@ MonoBehaviour:
     backgroundColor: {r: 1, g: 0.5, b: 0, a: 0.5}
     logoPath: Assets/Editor/Backgroundlogos/Tracking.png
     iconPath: Assets/Editor/Backgroundlogos/Tracking_icon.png
+    description: Movement and object tracking system configuration
+  - styleName: IslandSystem
+    backgroundColor: {r: 0.6051183, g: 0, b: 1, a: 0.5}
+    logoPath: Assets/Editor/Backgroundlogos/IslandSystem.png
+    iconPath: Assets/Editor/Backgroundlogos/IslandSystem_icon.png
+    description: Movement and object tracking system configuration
+  - styleName: Island
+    backgroundColor: {r: 0.10323429, g: 1, b: 0, a: 0.5}
+    logoPath: Assets/Editor/Backgroundlogos/Island.png
+    iconPath: Assets/Editor/Backgroundlogos/Island_icon.png
     description: Movement and object tracking system configuration
   additionalBackgroundHeight: 0

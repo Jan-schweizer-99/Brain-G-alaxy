@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -26,7 +25,7 @@ public class OllamaUIDisplay : MonoBehaviour
     private OllamaIntegration.ResponseUpdateHandler responseUpdateHandler;
     private OllamaIntegration.GenerationHandler generationStartHandler;
     private OllamaIntegration.GenerationHandler generationCompleteHandler;
-/**/
+
 #if UNITY_EDITOR
     [CustomEditor(typeof(OllamaUIDisplay))]
     public class OllamaUIDisplayEditor : CustomBaseEditor
@@ -157,8 +156,6 @@ public class OllamaUIDisplay : MonoBehaviour
         {
             Debug.LogWarning($"[{gameObject.name}] No math font assigned - some symbols might not display correctly!");
         }
-
-        outputText.SetText(string.Empty);
 
         // Event-Handler erstellen und speichern
         responseUpdateHandler = (response, targetId) => 
