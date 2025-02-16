@@ -254,7 +254,7 @@ GameObject:
   - component: {fileID: 7784061661835677477}
   - component: {fileID: 8836101249985464340}
   m_Layer: 0
-  m_Name: Basic_island_2
+  m_Name: 03-Teknikken des Zeichnens
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

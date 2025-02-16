@@ -10,7 +10,7 @@ public class IslandPrefabManager : MonoBehaviour
 {
     [Header("Prefab Einstellungen")]
     public GameObject sourcePrefab;
-    public string targetFolderPath = "Assets/Prefabs/Islands";
+    public string targetFolderPath = "Assets/Prefabs/IslandContent";
 
     [Header("Spiral Generator")]
     public ConicalSpiralIslandPlacer spiralPlacer;

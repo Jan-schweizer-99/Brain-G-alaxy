@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ff8190d0af87aa45895188ad77482c2, type: 3}
+  m_Name: TopicDatabase
+  m_EditorClassIdentifier: 
+  topics:
+  - id: 0
+    mainTopic: Technisches Zeichnen
+    topic: Technisches Zeichnen
+    section: Grundlagen
+    tags:
+    - basics
+    - definition
+    - konzept
+  - id: 1
+    mainTopic: Technisches Zeichnen
+    topic: Grundlagen des Technischen Zeichnens
+    section: Grundlagen
+    tags:
+    - basics
+    - grundlagen
+    - zeichenlehre
+  - id: 2
+    mainTopic: Technisches Zeichnen
+    topic: Teknikken des Zeichnens
+    section: Techniken
+    tags:
+    - technikken
+    - methoden
+    - zeichnete
+  - id: 3
+    mainTopic: Technisches Zeichnen
+    topic: Anwendung in verschiedenen Bereichen
+    section: Anwendung
+    tags:
+    - anwendung
+    - berufe
+    - praxis
+  - id: 4
+    mainTopic: Technisches Zeichnen
+    topic: Werkzeuge und Methoden
+    section: Werkzeuge
+    tags:
+    - werkzeuge
+    - software
+    - methodologie
+  - id: 5
+    mainTopic: Technisches Zeichnen
+    topic: "Projektive und Praktische \xDCbungen"
+    section: "\xDCbung"
+    tags:
+    - "\xFCbung"
+    - projekte
+    - "l\xF6sung"

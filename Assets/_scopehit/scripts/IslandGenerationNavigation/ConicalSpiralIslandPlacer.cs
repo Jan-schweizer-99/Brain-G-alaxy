@@ -265,87 +265,105 @@ public class ConicalSpiralIslandPlacer : MonoBehaviour
         }
     }
 
-    public void GenerateConicalSpiral()
+public void GenerateConicalSpiral()
+{
+    if (islandPrefabs == null || islandPrefabs.Length == 0)
     {
-        if (islandPrefabs == null || islandPrefabs.Length == 0)
-        {
-            Debug.LogWarning("Keine Insel-Präfabs zugewiesen!");
-            return;
-        }
-
-        float currentRadius = startRadius;
-        float currentHeight = 0;
-        float highestHeight = 0;
-        float lowestHeight = 0;
-
-        // Ersten Durchlauf zur Höhenbestimmung
-        for (int i = 0; i < islandPrefabs.Length; i++)
-        {
-            if (islandPrefabs[i] == null) continue;
-
-            // Höhen aktualisieren
-            highestHeight = Mathf.Max(highestHeight, currentHeight);
-            lowestHeight = Mathf.Min(lowestHeight, currentHeight);
-
-            // Radius und Höhe für nächste Iteration anpassen
-            currentRadius -= radiusDecrement;
-            currentHeight += heightIncrement;
-        }
-
-        // Mittlere Höhe berechnen
-        float centerHeight = (highestHeight + lowestHeight) / 2f;
-
-        // RoomOfNumbers in der Mitte platzieren
-        if (roomOfNumbersPrefab != null)
-        {
-            GameObject centerRoom = Instantiate(roomOfNumbersPrefab, transform);
-            centerRoom.transform.localPosition = new Vector3(0, centerHeight, 0);
-            centerRoom.name = "RoomOfNumbers_Center";
-        }
-
-        // Spirale generieren
-        currentRadius = startRadius;
-        currentHeight = 0;
-
-        for (int i = 0; i < islandPrefabs.Length; i++)
-        {
-            if (islandPrefabs[i] == null) continue;
-
-            // Aktuelle Position berechnen
-            float currentAngle = i * rotationPerStep * Mathf.Deg2Rad;
-            
-            float currentX = currentRadius * Mathf.Cos(currentAngle);
-            float currentZ = currentRadius * Mathf.Sin(currentAngle);
-
-            // Präfab instanziieren
-            GameObject selectedPrefab = islandPrefabs[i];
-            GameObject newIsland = Instantiate(selectedPrefab, transform);
-
-            // Position setzen
-            newIsland.transform.localPosition = new Vector3(currentX, currentHeight, currentZ);
-            
-            // Rotation zur Mitte ausrichten
-            Vector3 directionToCenter = Vector3.zero - new Vector3(currentX, 0, currentZ);
-            newIsland.transform.rotation = Quaternion.LookRotation(directionToCenter);
-            
-            // Name setzen - verwende den Original-Prefab-Namen wenn autoLoad aktiv ist
-            if (autoLoadPrefabsFromFolder)
-            {
-                newIsland.name = selectedPrefab.name;
-            }
-            else
-            {
-                newIsland.name = $"Island_{i + 1}_{selectedPrefab.name}";
-            }
-
-            // Radius und Höhe anpassen
-            currentRadius -= radiusDecrement;
-            currentHeight += heightIncrement;
-        }
-
-        // Event auslösen
-        OnIslandsGenerated?.Invoke();
+        Debug.LogWarning("Keine Insel-Präfabs zugewiesen!");
+        return;
     }
+
+    float currentRadius = startRadius;
+    float currentHeight = 0;
+    float highestHeight = 0;
+    float lowestHeight = 0;
+
+    // Ersten Durchlauf zur Höhenbestimmung
+    for (int i = 0; i < islandPrefabs.Length; i++)
+    {
+        if (islandPrefabs[i] == null) continue;
+
+        // Höhen aktualisieren
+        highestHeight = Mathf.Max(highestHeight, currentHeight);
+        lowestHeight = Mathf.Min(lowestHeight, currentHeight);
+
+        // Radius und Höhe für nächste Iteration anpassen
+        currentRadius -= radiusDecrement;
+        currentHeight += heightIncrement;
+    }
+
+    // Mittlere Höhe berechnen
+    float centerHeight = (highestHeight + lowestHeight) / 2f;
+
+    // RoomOfNumbers in der Mitte platzieren
+    if (roomOfNumbersPrefab != null)
+    {
+        GameObject centerRoom = Instantiate(roomOfNumbersPrefab, transform);
+        centerRoom.transform.localPosition = new Vector3(0, centerHeight, 0);
+        centerRoom.name = "RoomOfNumbers_Center";
+    }
+
+    // Spirale generieren
+    currentRadius = startRadius;
+    currentHeight = 0;
+
+    for (int i = 0; i < islandPrefabs.Length; i++)
+    {
+        if (islandPrefabs[i] == null) continue;
+
+        // Aktuelle Position berechnen
+        float currentAngle = i * rotationPerStep * Mathf.Deg2Rad;
+        
+        float currentX = currentRadius * Mathf.Cos(currentAngle);
+        float currentZ = currentRadius * Mathf.Sin(currentAngle);
+
+        // Präfab instanziieren
+        GameObject selectedPrefab = islandPrefabs[i];
+        GameObject newIsland;
+
+        #if UNITY_EDITOR
+        if (!Application.isPlaying && PrefabUtility.IsPartOfPrefabAsset(selectedPrefab))
+        {
+            newIsland = (GameObject)PrefabUtility.InstantiatePrefab(selectedPrefab, transform);
+            if (newIsland == null)
+            {
+                Debug.LogError($"Fehler beim Instanziieren des Prefabs {selectedPrefab.name} mit PrefabUtility");
+                continue;
+            }
+        }
+        else
+        {
+            newIsland = Instantiate(selectedPrefab, transform);
+        }
+        #else
+        newIsland = Instantiate(selectedPrefab, transform);
+        #endif
+            
+        // Position setzen
+        newIsland.transform.localPosition = new Vector3(currentX, currentHeight, currentZ);
+        
+        // Rotation zur Mitte ausrichten
+        Vector3 directionToCenter = Vector3.zero - new Vector3(currentX, 0, currentZ);
+        newIsland.transform.rotation = Quaternion.LookRotation(directionToCenter);
+        
+        // Name setzen - verwende den Original-Prefab-Namen wenn autoLoad aktiv ist
+        if (autoLoadPrefabsFromFolder)
+        {
+            newIsland.name = selectedPrefab.name;
+        }
+        else
+        {
+            newIsland.name = $"Island_{i + 1}_{selectedPrefab.name}";
+        }
+
+        // Radius und Höhe anpassen
+        currentRadius -= radiusDecrement;
+        currentHeight += heightIncrement;
+    }
+
+    // Event auslösen
+    OnIslandsGenerated?.Invoke();
+}
 
     private void CreateSpiralMesh()
     {
