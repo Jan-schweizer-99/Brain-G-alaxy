@@ -1,6 +1,5 @@
-// AxisGizmoGenerator.cs
-
 using UnityEngine;
+using System.Collections.Generic;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -22,13 +21,23 @@ public class AxisGizmoGenerator : MonoBehaviour
     
     public float gridLineWidth;
 
-    void Start()
+    // New: List of child gizmos
+    [System.Serializable]
+    public class ChildGizmoSettings
     {
-        if (showAxisGizmo)
-        {
-            //CreateAxisGizmo();
-        }
+        public string name = "Child Gizmo";
+        public Vector3 relativeOffset; // Offset relative to parent axis lengths
+        public Vector3 rotation;
+        public float xAxisLength = 1f;
+        public float yAxisLength = 1f;
+        public float zAxisLength = 1f;
+        public Color xAxisColor = Color.red;
+        public Color yAxisColor = Color.green;
+        public Color zAxisColor = Color.blue;
+        public bool isVisible = true;
     }
+
+    public List<ChildGizmoSettings> childGizmos = new List<ChildGizmoSettings>();
 
     public void UpdateGizmo()
     {
@@ -40,9 +49,57 @@ public class AxisGizmoGenerator : MonoBehaviour
         if (showAxisGizmo)
         {
             CreateAxisGizmo();
+            CreateChildGizmos();
         }
     }
 
+void CreateChildGizmos()
+{
+    foreach (var childSettings in childGizmos)
+    {
+        if (childSettings.isVisible)
+        {
+            GameObject childGizmoObj = new GameObject(childSettings.name);
+            childGizmoObj.transform.SetParent(transform, false);
+            
+            AxisGizmoGenerator childGizmo = childGizmoObj.AddComponent<AxisGizmoGenerator>();
+            childGizmo.showAxisGizmo = true;
+            
+            // Berechne den skalierten Offset des Childs basierend auf Parent-Achsenlängen
+            Vector3 scaledChildOffset = new Vector3(
+                childSettings.relativeOffset.x * xAxisLength,
+                childSettings.relativeOffset.y * yAxisLength,
+                childSettings.relativeOffset.z * zAxisLength
+            );
+
+            // Rotiere den Offset um den Parent-Ursprung basierend auf der Parent-Rotation
+            Quaternion parentRotation = Quaternion.Euler(axisGizmoRotation);
+            Vector3 rotatedOffset = parentRotation * scaledChildOffset;
+            
+            // Setze die finale Position des Child-Gizmos
+            childGizmo.axisGizmoOffset = axisGizmoOffset + rotatedOffset;
+            
+            // Kombiniere Parent- und Child-Rotation
+            childGizmo.axisGizmoRotation = axisGizmoRotation + childSettings.rotation;
+            
+            // Übernehme die Parent-Achsenlängen als Basis und multipliziere mit Child-Skalierung
+            childGizmo.xAxisLength = xAxisLength * childSettings.xAxisLength;
+            childGizmo.yAxisLength = yAxisLength * childSettings.yAxisLength;
+            childGizmo.zAxisLength = zAxisLength * childSettings.zAxisLength;
+            
+            // Übernehme die Farben vom Child
+            childGizmo.xAxisColor = childSettings.xAxisColor;
+            childGizmo.yAxisColor = childSettings.yAxisColor;
+            childGizmo.zAxisColor = childSettings.zAxisColor;
+            
+            childGizmo.gridLineWidth = gridLineWidth;
+            
+            childGizmo.UpdateGizmo();
+        }
+    }
+}
+
+    // Rest of the existing methods remain the same
     void CreateAxisGizmo()
     {
         GameObject axisContainer = new GameObject("AxisGizmo");
@@ -109,12 +166,15 @@ public class AxisGizmoGenerator : MonoBehaviour
 [CustomEditor(typeof(AxisGizmoGenerator))]
 public class AxisGizmoGeneratorEditor : Editor
 {
+    private Dictionary<int, bool> childGizmoFoldouts = new Dictionary<int, bool>();
+
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
         
         AxisGizmoGenerator gizmo = (AxisGizmoGenerator)target;
 
+        // Main gizmo settings
         EditorGUI.BeginChangeCheck();
         bool newShowAxisGizmo = EditorGUILayout.Toggle("Show Axis Gizmo", gizmo.showAxisGizmo);
         if (EditorGUI.EndChangeCheck())
@@ -136,8 +196,6 @@ public class AxisGizmoGeneratorEditor : Editor
         }
 
         EditorGUILayout.Space();
-        // AxisGizmoGenerator.cs continuation:
-
         EditorGUILayout.LabelField("Axis Gizmo Colors", EditorStyles.boldLabel);
         
         EditorGUI.BeginChangeCheck();
@@ -158,15 +216,9 @@ public class AxisGizmoGeneratorEditor : Editor
         EditorGUILayout.LabelField("Axis Gizmo Lengths", EditorStyles.boldLabel);
 
         EditorGUI.BeginChangeCheck();
-        
-        EditorGUILayout.LabelField("X-Axis", EditorStyles.boldLabel);
-        float newXLength = EditorGUILayout.FloatField("Length", gizmo.xAxisLength);
-
-        EditorGUILayout.LabelField("Y-Axis", EditorStyles.boldLabel);
-        float newYLength = EditorGUILayout.FloatField("Length", gizmo.yAxisLength);
-
-        EditorGUILayout.LabelField("Z-Axis", EditorStyles.boldLabel);
-        float newZLength = EditorGUILayout.FloatField("Length", gizmo.zAxisLength);
+        float newXLength = EditorGUILayout.FloatField("X-Axis Length", gizmo.xAxisLength);
+        float newYLength = EditorGUILayout.FloatField("Y-Axis Length", gizmo.yAxisLength);
+        float newZLength = EditorGUILayout.FloatField("Z-Axis Length", gizmo.zAxisLength);
         
         if (EditorGUI.EndChangeCheck())
         {
@@ -174,6 +226,69 @@ public class AxisGizmoGeneratorEditor : Editor
             gizmo.xAxisLength = newXLength;
             gizmo.yAxisLength = newYLength;
             gizmo.zAxisLength = newZLength;
+            gizmo.UpdateGizmo();
+        }
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Child Gizmos", EditorStyles.boldLabel);
+
+        // Child gizmos list
+        for (int i = 0; i < gizmo.childGizmos.Count; i++)
+        {
+            if (!childGizmoFoldouts.ContainsKey(i))
+            {
+                childGizmoFoldouts[i] = false;
+            }
+
+            EditorGUILayout.BeginHorizontal();
+            var childGizmo = gizmo.childGizmos[i];
+            childGizmoFoldouts[i] = EditorGUILayout.Foldout(childGizmoFoldouts[i], childGizmo.name, true);
+            
+            if (GUILayout.Button("Remove", GUILayout.Width(60)))
+            {
+                Undo.RecordObject(gizmo, "Removed Child Gizmo");
+                gizmo.childGizmos.RemoveAt(i);
+                childGizmoFoldouts.Remove(i);
+                gizmo.UpdateGizmo();
+                break;
+            }
+            EditorGUILayout.EndHorizontal();
+
+            if (childGizmoFoldouts[i])
+            {
+                EditorGUI.indentLevel++;
+                EditorGUI.BeginChangeCheck();
+
+                childGizmo.name = EditorGUILayout.TextField("Name", childGizmo.name);
+                childGizmo.isVisible = EditorGUILayout.Toggle("Visible", childGizmo.isVisible);
+                childGizmo.relativeOffset = EditorGUILayout.Vector3Field("Relative Offset", childGizmo.relativeOffset);
+                childGizmo.rotation = EditorGUILayout.Vector3Field("Rotation", childGizmo.rotation);
+                
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Axis Lengths", EditorStyles.boldLabel);
+                childGizmo.xAxisLength = EditorGUILayout.FloatField("X-Axis Length", childGizmo.xAxisLength);
+                childGizmo.yAxisLength = EditorGUILayout.FloatField("Y-Axis Length", childGizmo.yAxisLength);
+                childGizmo.zAxisLength = EditorGUILayout.FloatField("Z-Axis Length", childGizmo.zAxisLength);
+
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Colors", EditorStyles.boldLabel);
+                childGizmo.xAxisColor = EditorGUILayout.ColorField("X-Axis Color", childGizmo.xAxisColor);
+                childGizmo.yAxisColor = EditorGUILayout.ColorField("Y-Axis Color", childGizmo.yAxisColor);
+                childGizmo.zAxisColor = EditorGUILayout.ColorField("Z-Axis Color", childGizmo.zAxisColor);
+
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(gizmo, "Modified Child Gizmo Settings");
+                    gizmo.UpdateGizmo();
+                }
+                EditorGUI.indentLevel--;
+            }
+        }
+
+        if (GUILayout.Button("Add Child Gizmo"))
+        {
+            Undo.RecordObject(gizmo, "Added Child Gizmo");
+            gizmo.childGizmos.Add(new AxisGizmoGenerator.ChildGizmoSettings());
             gizmo.UpdateGizmo();
         }
 
