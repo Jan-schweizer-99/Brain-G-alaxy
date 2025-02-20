@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   editorStyles:
   - styleName: Deepseek
-    backgroundColor: {r: 1, g: 0.7395831, b: 0, a: 0.5}
+    backgroundColor: {r: 0, g: 0.7624998, b: 1, a: 0.5}
     logoPath: Assets/Editor/Backgroundlogos/Deepseek.png
     iconPath: Assets/Editor/Backgroundlogos/Deepseek_icon.png
     description: Movement and object tracking system configuration
