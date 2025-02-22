@@ -7,6 +7,7 @@ public class AssetDeletionSynchronizer : AssetModificationProcessor
 {
     private const string ISLANDS_PATH = "Assets/Prefabs/Islands";
     private const string CONTENT_PATH = "Assets/Prefabs/IslandContent";
+    private const string TEMPLATE_PATH = "Assets/Prefabs/IslandContent/_template.prefab"; // Pfad zum Template
 
     private static string GetBaseNameWithoutPrefix(string fileName)
     {
@@ -28,7 +29,6 @@ public class AssetDeletionSynchronizer : AssetModificationProcessor
             char lastChar = fileName[fileName.Length - 1];
             if (char.IsDigit(lastChar) && fileName[fileName.Length - 2] == 'n')
             {
-                // Keep the number at the end
                 return fileName;
             }
         }
@@ -41,7 +41,6 @@ public class AssetDeletionSynchronizer : AssetModificationProcessor
         return baseName + "_content";
     }
 
-    // Diese Methode wird nach jeder Asset-Änderung aufgerufen
     private class AssetPostprocessor : UnityEditor.AssetPostprocessor
     {
         private static void OnPostprocessAllAssets(
@@ -50,7 +49,6 @@ public class AssetDeletionSynchronizer : AssetModificationProcessor
             string[] movedAssets,
             string[] movedFromAssetPaths)
         {
-            // Synchronisiere nach jeder Änderung
             SynchronizeFolders();
         }
     }
@@ -64,14 +62,18 @@ public class AssetDeletionSynchronizer : AssetModificationProcessor
             return;
         }
 
-        // Hole alle Prefabs aus beiden Ordnern
+        // Check if template exists
+        GameObject templatePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(TEMPLATE_PATH);
+        if (templatePrefab == null)
+        {
+            Debug.LogError($"Template prefab not found at {TEMPLATE_PATH}! Please ensure it exists.");
+            return;
+        }
+
         string[] islandPrefabs = Directory.GetFiles(ISLANDS_PATH, "*.prefab");
         string[] contentPrefabs = Directory.GetFiles(CONTENT_PATH, "*.prefab");
-
-        // Erstelle eine Map der erwarteten Content-Prefabs
         Dictionary<string, bool> expectedContent = new Dictionary<string, bool>();
         
-        // Verarbeite Island Prefabs und erstelle/aktualisiere entsprechende Content Prefabs
         foreach (string islandPath in islandPrefabs)
         {
             string islandName = Path.GetFileNameWithoutExtension(islandPath);
@@ -80,14 +82,14 @@ public class AssetDeletionSynchronizer : AssetModificationProcessor
             
             expectedContent[expectedContentPath.ToLower()] = true;
 
-            // Erstelle Content Prefab falls es nicht existiert
+            // Create content prefab from template if it doesn't exist
             if (!File.Exists(expectedContentPath))
             {
-                CreateEmptyContentPrefab(expectedContentPath);
+                CreateContentPrefabFromTemplate(expectedContentPath, templatePrefab);
             }
         }
 
-        // Optional: Warnungen für nicht zugeordnete Content Prefabs ausgeben
+        // Optional: Output warnings for unmatched content prefabs
         foreach (string contentPath in contentPrefabs)
         {
             if (!expectedContent.ContainsKey(contentPath.ToLower()))
@@ -95,38 +97,33 @@ public class AssetDeletionSynchronizer : AssetModificationProcessor
                 Debug.LogWarning($"Found unmatched content prefab: {contentPath}");
             }
         }
-
-        AssetDatabase.Refresh();
     }
 
-    private static void CreateEmptyContentPrefab(string path)
+    private static void CreateContentPrefabFromTemplate(string path, GameObject templatePrefab)
     {
-        // Erstelle ein leeres GameObject
-        GameObject tempObj = new GameObject(Path.GetFileNameWithoutExtension(path));
-        
-        // Speichere es als Prefab
-        bool success = false;
-        try
+        if (templatePrefab == null)
         {
-            GameObject prefab = PrefabUtility.SaveAsPrefabAsset(tempObj, path);
-            if (prefab != null)
-            {
-                success = true;
-                Debug.Log($"Created new content prefab: {path}");
-            }
+            Debug.LogError("Template prefab is null!");
+            return;
         }
-        catch (System.Exception e)
+
+        string templatePath = AssetDatabase.GetAssetPath(templatePrefab);
+        if (string.IsNullOrEmpty(templatePath))
         {
-            Debug.LogError($"Error creating prefab: {e.Message}");
+            Debug.LogError("Template prefab has no valid path!");
+            return;
         }
-        finally
+
+        // Create a copy of the template
+        bool success = AssetDatabase.CopyAsset(templatePath, path);
+        if (success)
         {
-            // Cleanup
-            Object.DestroyImmediate(tempObj);
-            if (!success)
-            {
-                Debug.LogError($"Failed to create prefab: {path}");
-            }
+            Debug.Log($"Created new content prefab from template: {path}");
+            AssetDatabase.Refresh();
+        }
+        else
+        {
+            Debug.LogError($"Failed to create content prefab at: {path}");
         }
     }
 
@@ -141,45 +138,33 @@ public class AssetDeletionSynchronizer : AssetModificationProcessor
         string sourceContentPath = Path.Combine(CONTENT_PATH, GetContentName(sourceFileName) + ".prefab");
         string destContentPath = Path.Combine(CONTENT_PATH, GetContentName(destFileName) + ".prefab");
 
-        // Wenn die Quelldatei existiert
         if (File.Exists(sourceContentPath))
         {
             try 
             {
-                // Überprüfe ob Quelle und Ziel identisch sind
                 if (sourceContentPath.ToLower() == destContentPath.ToLower())
                 {
-                    // Ignoriere den Vorgang wenn es der gleiche Pfad ist
                     return AssetMoveResult.DidNotMove;
                 }
 
                 Debug.Log($"Renaming content prefab from {sourceContentPath} to {destContentPath}");
                 
-                // Erst verschieben/kopieren
                 string error = AssetDatabase.MoveAsset(sourceContentPath, destContentPath);
                 
-                // Wenn die Verschiebung erfolgreich war
                 if (string.IsNullOrEmpty(error))
                 {
-                    // Warte einen Frame um sicherzustellen, dass die Verschiebung abgeschlossen ist
                     EditorApplication.delayCall += () =>
                     {
-                        // Prüfe ob die alte Datei noch existiert und die neue erfolgreich erstellt wurde
                         if (File.Exists(sourceContentPath) && File.Exists(destContentPath))
                         {
-                            Debug.Log($"Deleting old content prefab: {sourceContentPath}");
                             AssetDatabase.DeleteAsset(sourceContentPath);
                             AssetDatabase.Refresh();
                         }
                     };
                 }
-                else
+                else if (!error.Contains("Trying to move asset to location it came from"))
                 {
-                    // Ignoriere den spezifischen Fehler für gleiche Pfade
-                    if (!error.Contains("Trying to move asset to location it came from"))
-                    {
-                        Debug.LogError($"Error moving asset: {error}");
-                    }
+                    Debug.LogError($"Error moving asset: {error}");
                 }
             }
             catch (System.Exception e)
@@ -208,7 +193,6 @@ public class AssetDeletionSynchronizer : AssetModificationProcessor
                 AssetDatabase.DeleteAsset(contentPath);
             }
 
-            // Führe eine vollständige Synchronisation durch
             EditorApplication.delayCall += () => 
             {
                 FullSynchronization();
@@ -226,11 +210,9 @@ public class AssetDeletionSynchronizer : AssetModificationProcessor
     {
         try
         {
-            // Hole alle existierenden Prefabs
             string[] islandPrefabs = Directory.GetFiles(ISLANDS_PATH, "*.prefab");
             string[] contentPrefabs = Directory.GetFiles(CONTENT_PATH, "*.prefab");
 
-            // Erstelle einen Hash-Set der erwarteten Content-Namen
             HashSet<string> validContentNames = new HashSet<string>();
             foreach (string islandPath in islandPrefabs)
             {
@@ -239,7 +221,6 @@ public class AssetDeletionSynchronizer : AssetModificationProcessor
                 validContentNames.Add(baseNameWithoutPrefix.ToLower() + "_content");
             }
 
-            // Lösche alle Content Prefabs die kein entsprechendes Island haben
             foreach (string contentPath in contentPrefabs)
             {
                 string contentName = Path.GetFileNameWithoutExtension(contentPath).ToLower();

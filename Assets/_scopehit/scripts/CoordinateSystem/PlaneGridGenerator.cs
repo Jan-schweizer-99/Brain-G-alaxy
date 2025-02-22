@@ -1,5 +1,3 @@
-// PlaneGridGenerator.cs
-
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -24,7 +22,6 @@ public class PlaneGridGenerator : MonoBehaviour
             CreateGridMaterial(currentWireframeColor);
         }
         CalculateSpacing();
-        //GenerateGrid();
     }
 
     void CalculateSpacing()
@@ -68,49 +65,96 @@ public class PlaneGridGenerator : MonoBehaviour
         UpdateGrid(currentWireframeColor);
     }
 
+    private GameObject CreatePlaneWithoutCollider(string name, Vector3 scale, Vector3 position, Quaternion rotation)
+    {
+        GameObject plane = new GameObject(name);
+        plane.AddComponent<MeshFilter>().mesh = CreateQuadMesh();
+        plane.AddComponent<MeshRenderer>().material = gridMaterial;
+        
+        plane.transform.localScale = scale;
+        plane.transform.position = transform.TransformPoint(position);
+        plane.transform.rotation = transform.rotation * rotation;
+        
+        return plane;
+    }
+
+    private Mesh CreateQuadMesh()
+    {
+        Mesh mesh = new Mesh();
+        
+        Vector3[] vertices = new Vector3[4]
+        {
+            new Vector3(-0.5f, -0.5f, 0),
+            new Vector3(0.5f, -0.5f, 0),
+            new Vector3(-0.5f, 0.5f, 0),
+            new Vector3(0.5f, 0.5f, 0)
+        };
+        
+        int[] triangles = new int[6]
+        {
+            0, 2, 1,
+            2, 3, 1
+        };
+        
+        Vector2[] uv = new Vector2[4]
+        {
+            new Vector2(0, 0),
+            new Vector2(1, 0),
+            new Vector2(0, 1),
+            new Vector2(1, 1)
+        };
+        
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.uv = uv;
+        mesh.RecalculateNormals();
+        
+        return mesh;
+    }
+
     void GenerateGrid()
     {
         if (gridMaterial == null) return;
 
         GameObject gridContainer = new GameObject("GridPlanes");
-        gridContainer.transform.SetParent(transform, false);
-        gridContainer.transform.localPosition = Vector3.zero;
-        gridContainer.transform.localRotation = Quaternion.identity;
+        gridContainer.transform.SetParent(transform);
+        gridContainer.transform.position = transform.position;
+        gridContainer.transform.rotation = transform.rotation;
         
         // Create XZ planes (horizontal)
         for (int y = -gridSize/2; y <= gridSize/2; y++)
         {
-            GameObject horizontal = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            horizontal.name = $"HorizontalPlane_Y{y}";
+            GameObject horizontal = CreatePlaneWithoutCollider(
+                $"HorizontalPlane_Y{y}",
+                new Vector3(gridWorldSize, gridWorldSize, 1),
+                new Vector3(0, y * spacing, 0),
+                Quaternion.Euler(90, 0, 0)
+            );
             horizontal.transform.parent = gridContainer.transform;
-            horizontal.transform.localScale = new Vector3(gridWorldSize, gridWorldSize, 1);
-            horizontal.transform.localPosition = new Vector3(0, y * spacing, 0);
-            horizontal.transform.localRotation = Quaternion.Euler(90, 0, 0);
-            horizontal.GetComponent<MeshRenderer>().material = gridMaterial;
         }
 
         // Create XY planes (vertical, Z-axis)
         for (int z = -gridSize/2; z <= gridSize/2; z++)
         {
-            GameObject verticalZ = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            verticalZ.name = $"VerticalPlane_Z{z}";
+            GameObject verticalZ = CreatePlaneWithoutCollider(
+                $"VerticalPlane_Z{z}",
+                new Vector3(gridWorldSize, gridWorldSize, 1),
+                new Vector3(0, 0, z * spacing),
+                Quaternion.Euler(0, 0, 0)
+            );
             verticalZ.transform.parent = gridContainer.transform;
-            verticalZ.transform.localScale = new Vector3(gridWorldSize, gridWorldSize, 1);
-            verticalZ.transform.localPosition = new Vector3(0, 0, z * spacing);
-            verticalZ.transform.localRotation = Quaternion.Euler(0, 0, 0);
-            verticalZ.GetComponent<MeshRenderer>().material = gridMaterial;
         }
 
         // Create YZ planes (vertical, X-axis)
         for (int x = -gridSize/2; x <= gridSize/2; x++)
         {
-            GameObject verticalX = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            verticalX.name = $"VerticalPlane_X{x}";
+            GameObject verticalX = CreatePlaneWithoutCollider(
+                $"VerticalPlane_X{x}",
+                new Vector3(gridWorldSize, gridWorldSize, 1),
+                new Vector3(x * spacing, 0, 0),
+                Quaternion.Euler(0, 90, 0)
+            );
             verticalX.transform.parent = gridContainer.transform;
-            verticalX.transform.localScale = new Vector3(gridWorldSize, gridWorldSize, 1);
-            verticalX.transform.localPosition = new Vector3(x * spacing, 0, 0);
-            verticalX.transform.localRotation = Quaternion.Euler(0, 90, 0);
-            verticalX.GetComponent<MeshRenderer>().material = gridMaterial;
         }
     }
 

@@ -21,10 +21,13 @@ public class OllamaUIDisplay : MonoBehaviour
     private string instanceId;
     private MarkdownFormatter markdownFormatter;
 
-    // Speichere die Event-Handler als Felder für späteres Deregistrieren
+    // Store event handlers as fields for later deregistration
     private OllamaIntegration.ResponseUpdateHandler responseUpdateHandler;
     private OllamaIntegration.GenerationHandler generationStartHandler;
     private OllamaIntegration.GenerationHandler generationCompleteHandler;
+
+    // Add initialization flag
+    private bool isInitialized = false;
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(OllamaUIDisplay))]
@@ -38,17 +41,24 @@ public class OllamaUIDisplay : MonoBehaviour
 
         private void OnEnable()
         {
-            SetEditorStyle("Deepseek");// set style for custom Editor
+            SetEditorStyle("Deepseek");
             ollamaIntegrationProp = serializedObject.FindProperty("ollamaIntegration");
             outputTextProp = serializedObject.FindProperty("outputText");
             mathFontProp = serializedObject.FindProperty("mathFont");
             systemPromptProp = serializedObject.FindProperty("systemPrompt");
             userPromptProp = serializedObject.FindProperty("userPrompt");
+
+            // Initialize the target script when the editor is enabled
+            var script = (OllamaUIDisplay)target;
+            if (!script.isInitialized)
+            {
+                script.EditorInitialize();
+            }
         }
 
         public override void OnInspectorGUI()
         {
-             base.OnInspectorGUI(); // Dies ist wichtig für den Hintergrund und das Logo
+            base.OnInspectorGUI();
             serializedObject.Update();
 
             var script = (OllamaUIDisplay)target;
@@ -62,10 +72,6 @@ public class OllamaUIDisplay : MonoBehaviour
             {
                 EditorGUILayout.HelpBox("OllamaIntegration reference is required!", MessageType.Error);
             }
-
-            //EditorGUILayout.PropertyField(ollamaIntegrationProp);
-            //EditorGUILayout.PropertyField(outputTextProp);
-            //EditorGUILayout.PropertyField(mathFontProp);
             
             EditorGUI.indentLevel--;
             EditorGUILayout.Space(10);
@@ -88,7 +94,7 @@ public class OllamaUIDisplay : MonoBehaviour
                     new Color(0.2f, 0.8f, 0.2f) : Color.gray;
                 
                 EditorGUI.BeginDisabledGroup(script.ollamaIntegration?.isGenerating ?? true);
-                if (GUILayout.Button("BUTTON SENDEN", GUILayout.Height(30)))
+                if (GUILayout.Button("GENERATE", GUILayout.Height(30)))
                 {
                     script.GenerateFromInspector();
                 }
@@ -98,7 +104,7 @@ public class OllamaUIDisplay : MonoBehaviour
                     new Color(0.8f, 0.2f, 0.2f) : Color.gray;
                 
                 EditorGUI.BeginDisabledGroup(!script.ollamaIntegration?.isGenerating ?? true);
-                if (GUILayout.Button("Button Abbrechen", GUILayout.Height(30)))
+                if (GUILayout.Button("STOP", GUILayout.Height(30)))
                 {
                     script.StopGeneration();
                 }
@@ -127,11 +133,16 @@ public class OllamaUIDisplay : MonoBehaviour
 
     private void Awake()
     {
-        instanceId = System.Guid.NewGuid().ToString();
+        if (!isInitialized)
+        {
+            Initialize();
+        }
     }
 
-    private void Start()
+    private void Initialize()
     {
+        instanceId = System.Guid.NewGuid().ToString();
+        
         if (ollamaIntegration == null)
         {
             Debug.LogError($"[{gameObject.name}] OllamaIntegration reference is missing!");
@@ -157,7 +168,23 @@ public class OllamaUIDisplay : MonoBehaviour
             Debug.LogWarning($"[{gameObject.name}] No math font assigned - some symbols might not display correctly!");
         }
 
-        // Event-Handler erstellen und speichern
+        SetupEventHandlers();
+        isInitialized = true;
+    }
+
+#if UNITY_EDITOR
+    public void EditorInitialize()
+    {
+        if (!isInitialized)
+        {
+            Initialize();
+        }
+    }
+#endif
+
+    private void SetupEventHandlers()
+    {
+        // Create event handlers
         responseUpdateHandler = (response, targetId) => 
         {
             if (targetId == instanceId)
@@ -182,7 +209,7 @@ public class OllamaUIDisplay : MonoBehaviour
             }
         };
 
-        // Event-Handler registrieren
+        // Register event handlers
         ollamaIntegration.OnResponseUpdated += responseUpdateHandler;
         ollamaIntegration.OnGenerationStarted += generationStartHandler;
         ollamaIntegration.OnGenerationCompleted += generationCompleteHandler;
@@ -244,8 +271,13 @@ public class OllamaUIDisplay : MonoBehaviour
         #endif
     }
 
-    private void GenerateFromInspector()
+    public void GenerateFromInspector()
     {
+        if (!isInitialized)
+        {
+            Initialize();
+        }
+
         if (ollamaIntegration == null || string.IsNullOrEmpty(userPrompt))
         {
             Debug.LogWarning("Cannot generate: Missing integration or empty prompt!");

@@ -19,6 +19,8 @@ public class CoordinateSystemManager : MonoBehaviour
         public Color yAxisColor = Color.green;
         public Color zAxisColor = Color.blue;
         public bool isVisible = true;
+        public bool showPrefab = true;  // Neue Option für Prefab-Sichtbarkeit
+        public GameObject positionPrefab;
     }
 
     [System.Serializable]
@@ -34,7 +36,8 @@ public class CoordinateSystemManager : MonoBehaviour
         public Color yAxisColor = Color.green;
         public Color zAxisColor = Color.blue;
         public bool isVisible = true;
-        // New: List of child gizmos
+        public bool showPrefab = true;  // Neue Option für Prefab-Sichtbarkeit
+        public GameObject positionPrefab;
         public List<ChildGizmoSettings> childGizmos = new List<ChildGizmoSettings>();
     }
 
@@ -42,15 +45,14 @@ public class CoordinateSystemManager : MonoBehaviour
     public int gridSize = 10;
     public float gridWorldSize = 10f;
     public Material gridMaterial;
+    public Color wireframeColor = Color.white;
     
     // List of Gizmo Settings
     public List<GizmoSettings> gizmoSettings = new List<GizmoSettings>();
     
     private PlaneGridGenerator gridGenerator;
     private List<AxisGizmoGenerator> gizmoGenerators = new List<AxisGizmoGenerator>();
-    
-    // Wireframe Color
-    public Color wireframeColor = Color.white;
+    private List<GameObject> instantiatedPrefabs = new List<GameObject>();
 
     void Start()
     {
@@ -63,20 +65,35 @@ public class CoordinateSystemManager : MonoBehaviour
 
     void InitializeSystem()
     {
-        foreach (Transform child in transform)
-        {
-            DestroyImmediate(child.gameObject);
-        }
-
-        gizmoGenerators.Clear();
-        gridGenerator = null;
-
+        CleanupSystem();
         CreateGrid();
         
         foreach (var settings in gizmoSettings)
         {
             CreateGizmo(settings);
         }
+    }
+
+    void CleanupSystem()
+    {
+        // Cleanup all children
+        foreach (Transform child in transform)
+        {
+            DestroyImmediate(child.gameObject);
+        }
+
+        // Cleanup prefabs
+        foreach (var prefab in instantiatedPrefabs)
+        {
+            if (prefab != null)
+            {
+                DestroyImmediate(prefab);
+            }
+        }
+        instantiatedPrefabs.Clear();
+
+        gizmoGenerators.Clear();
+        gridGenerator = null;
     }
 
     void CreateGrid()
@@ -94,84 +111,76 @@ public class CoordinateSystemManager : MonoBehaviour
         }
     }
 
-    void ClearGizmos()
+    void CreateGizmo(GizmoSettings settings)
     {
-        foreach (var gizmo in gizmoGenerators)
+        GameObject gizmoObj = new GameObject(settings.name);
+        gizmoObj.transform.SetParent(transform, false);
+        
+        AxisGizmoGenerator gizmo = gizmoObj.AddComponent<AxisGizmoGenerator>();
+        
+        float spacing = gridWorldSize / gridSize;
+        float gridLineWidth = gridMaterial != null ? gridMaterial.GetFloat("_LineWidth") : 0.1f;
+        
+        // Calculate parent position
+        Vector3 parentPosition = new Vector3(
+            settings.offset.x * spacing,
+            settings.offset.y * spacing,
+            settings.offset.z * spacing
+        );
+        
+        // Setup parent gizmo with new prefab visibility
+        gizmo.showAxisGizmo = settings.isVisible;
+        gizmo.showPrefab = settings.showPrefab;
+        gizmo.axisGizmoOffset = parentPosition;
+        gizmo.axisGizmoRotation = settings.rotation;
+        gizmo.xAxisLength = settings.xAxisLength * spacing;
+        gizmo.yAxisLength = settings.yAxisLength * spacing;
+        gizmo.zAxisLength = settings.zAxisLength * spacing;
+        gizmo.xAxisColor = settings.xAxisColor;
+        gizmo.yAxisColor = settings.yAxisColor;
+        gizmo.zAxisColor = settings.zAxisColor;
+        gizmo.gridLineWidth = gridLineWidth;
+        gizmo.positionPrefab = settings.positionPrefab;
+
+        // Create child gizmos
+        foreach (var childSettings in settings.childGizmos)
         {
-            if (gizmo != null)
+            var childGizmoSettings = new AxisGizmoGenerator.ChildGizmoSettings
             {
-                DestroyImmediate(gizmo.gameObject);
-            }
+                name = childSettings.name,
+                relativeOffset = childSettings.relativeOffset,
+                rotation = childSettings.rotation,
+                xAxisLength = childSettings.xAxisLength,
+                yAxisLength = childSettings.yAxisLength,
+                zAxisLength = childSettings.zAxisLength,
+                xAxisColor = childSettings.xAxisColor,
+                yAxisColor = childSettings.yAxisColor,
+                zAxisColor = childSettings.zAxisColor,
+                isVisible = childSettings.isVisible,
+                showPrefab = childSettings.showPrefab,  // Neue Prefab-Sichtbarkeit
+                positionPrefab = childSettings.positionPrefab
+            };
+            gizmo.childGizmos.Add(childGizmoSettings);
         }
-        gizmoGenerators.Clear();
-    }
+        
+        gizmoGenerators.Add(gizmo);
+        gizmo.UpdateGizmo();
 
-void CreateGizmo(GizmoSettings settings)
-{
-    GameObject gizmoObj = new GameObject(settings.name);
-    gizmoObj.transform.SetParent(transform, false);
-    
-    AxisGizmoGenerator gizmo = gizmoObj.AddComponent<AxisGizmoGenerator>();
-    
-    float spacing = gridWorldSize / gridSize;
-    float gridLineWidth = gridMaterial != null ? gridMaterial.GetFloat("_LineWidth") : 0.1f;
-    
-    // Calculate parent position
-    Vector3 parentPosition = new Vector3(
-        settings.offset.x * spacing,
-        settings.offset.y * spacing,
-        settings.offset.z * spacing
-    );
-    
-    gizmo.showAxisGizmo = settings.isVisible;
-    gizmo.axisGizmoOffset = parentPosition;
-    gizmo.axisGizmoRotation = settings.rotation;
-    gizmo.xAxisLength = settings.xAxisLength * spacing;
-    gizmo.yAxisLength = settings.yAxisLength * spacing;
-    gizmo.zAxisLength = settings.zAxisLength * spacing;
-    gizmo.xAxisColor = settings.xAxisColor;
-    gizmo.yAxisColor = settings.yAxisColor;
-    gizmo.zAxisColor = settings.zAxisColor;
-    gizmo.gridLineWidth = gridLineWidth;
-
-    // Add child gizmos with corrected positioning
-    foreach (var childSettings in settings.childGizmos)
-    {
-        var childGizmoSettings = new AxisGizmoGenerator.ChildGizmoSettings
+        // If there's a prefab for the parent gizmo, instantiate it if showPrefab is true
+        if (settings.showPrefab && settings.positionPrefab != null)
         {
-            name = childSettings.name,
-            // Set relative offset directly - the parent position is already handled by the parent gizmo
-            relativeOffset = childSettings.relativeOffset,
-            rotation = childSettings.rotation, // Child rotation is local to parent
-            xAxisLength = childSettings.xAxisLength,
-            yAxisLength = childSettings.yAxisLength,
-            zAxisLength = childSettings.zAxisLength,
-            xAxisColor = childSettings.xAxisColor,
-            yAxisColor = childSettings.yAxisColor,
-            zAxisColor = childSettings.zAxisColor,
-            isVisible = childSettings.isVisible
-        };
-        gizmo.childGizmos.Add(childGizmoSettings);
+            GameObject prefabInstance = Instantiate(settings.positionPrefab, 
+                transform.position + parentPosition, 
+                Quaternion.Euler(settings.rotation));
+            prefabInstance.transform.SetParent(gizmoObj.transform);
+            prefabInstance.name = $"Position_Prefab_{settings.name}";
+            instantiatedPrefabs.Add(prefabInstance);
+        }
     }
-    
-    gizmoGenerators.Add(gizmo);
-    gizmo.UpdateGizmo();
-}
 
     public void UpdateSystem()
     {
-        for (int i = transform.childCount - 1; i >= 0; i--)
-        {
-            Transform child = transform.GetChild(i);
-            if (child != null)
-            {
-                DestroyImmediate(child.gameObject);
-            }
-        }
-
-        gizmoGenerators.Clear();
-        gridGenerator = null;
-
+        CleanupSystem();
         CreateGrid();
         
         if (gizmoSettings != null && gizmoSettings.Count > 0)
@@ -219,11 +228,7 @@ void CreateGizmo(GizmoSettings settings)
 
     void OnDestroy()
     {
-        if (gridGenerator != null)
-        {
-            DestroyImmediate(gridGenerator.gameObject);
-        }
-        ClearGizmos();
+        CleanupSystem();
     }
 }
 
@@ -242,6 +247,7 @@ public class CoordinateSystemManagerEditor : Editor
         
         CoordinateSystemManager manager = (CoordinateSystemManager)target;
 
+        // Grid Settings
         showGridSettings = EditorGUILayout.Foldout(showGridSettings, "Grid Settings", true);
         if (showGridSettings)
         {
@@ -266,6 +272,7 @@ public class CoordinateSystemManagerEditor : Editor
             EditorGUI.indentLevel--;
         }
 
+        // Gizmo List
         EditorGUILayout.Space();
         showGizmoList = EditorGUILayout.Foldout(showGizmoList, "Gizmo List", true);
         if (showGizmoList)
@@ -297,8 +304,15 @@ public class CoordinateSystemManagerEditor : Editor
                     EditorGUI.indentLevel++;
                     EditorGUI.BeginChangeCheck();
                     
+                    // Main gizmo settings
                     gizmo.name = EditorGUILayout.TextField("Name", gizmo.name);
-                    gizmo.isVisible = EditorGUILayout.Toggle("Visible", gizmo.isVisible);
+                    gizmo.isVisible = EditorGUILayout.Toggle("Show Axis Gizmo", gizmo.isVisible);
+                    gizmo.showPrefab = EditorGUILayout.Toggle("Show Prefab", gizmo.showPrefab);  // Neue Option
+                    gizmo.positionPrefab = (GameObject)EditorGUILayout.ObjectField(
+                        "Position Prefab", 
+                        gizmo.positionPrefab, 
+                        typeof(GameObject), 
+                        false);
                     gizmo.offset = EditorGUILayout.Vector3Field("Offset", gizmo.offset);
                     gizmo.rotation = EditorGUILayout.Vector3Field("Rotation", gizmo.rotation);
                     
@@ -344,8 +358,15 @@ public class CoordinateSystemManagerEditor : Editor
                             EditorGUI.indentLevel++;
                             EditorGUI.BeginChangeCheck();
 
+                            // Child gizmo settings
                             childGizmo.name = EditorGUILayout.TextField("Name", childGizmo.name);
-                            childGizmo.isVisible = EditorGUILayout.Toggle("Visible", childGizmo.isVisible);
+                            childGizmo.isVisible = EditorGUILayout.Toggle("Show Axis Gizmo", childGizmo.isVisible);
+                            childGizmo.showPrefab = EditorGUILayout.Toggle("Show Prefab", childGizmo.showPrefab);  // Neue Option
+                            childGizmo.positionPrefab = (GameObject)EditorGUILayout.ObjectField(
+                                "Position Prefab", 
+                                childGizmo.positionPrefab, 
+                                typeof(GameObject), 
+                                false);
                             childGizmo.relativeOffset = EditorGUILayout.Vector3Field("Relative Offset", childGizmo.relativeOffset);
                             childGizmo.rotation = EditorGUILayout.Vector3Field("Rotation", childGizmo.rotation);
 

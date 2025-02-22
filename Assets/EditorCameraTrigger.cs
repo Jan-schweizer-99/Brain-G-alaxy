@@ -9,13 +9,14 @@ public class EditorCameraTrigger : MonoBehaviour
 {
     [Header("Prefab Settings")]
     public string prefabFolderPath = "Assets/Prefabs/IslandContent";
+    public GameObject templatePrefab;
     private string contentPrefabName;
 
     public GameObject prefabToSpawn;
     private bool isInsideCollider = false;
     private GameObject spawnedInstance;
     private double lastUpdateTime;
-    private const double UPDATE_INTERVAL = 0.1; // 100ms interval
+    private const double UPDATE_INTERVAL = 0.2f; // Increased to 200ms
 
     [Header("UI References")]
     public Canvas infoCanvas;
@@ -29,26 +30,19 @@ public class EditorCameraTrigger : MonoBehaviour
     [SerializeField, ReadOnly] private Vector3 targetPosition;
     [SerializeField, ReadOnly] private bool isTriggerActive;
     [SerializeField, ReadOnly] private string debugStatus;
+    private Vector3 lastCheckedPosition;
 
     private void OnEnable()
     {
         #if UNITY_EDITOR
-        InitializePrefab();
+        LoadPrefab();
         if (!Application.isPlaying)
         {
             EditorApplication.update += OnEditorUpdate;
         }
         #endif
 
-        if (objectNameText != null)
-        {
-            string displayName = gameObject.name;
-            if (Application.isPlaying && displayName.EndsWith("(Clone)"))
-            {
-                displayName = displayName.Substring(0, displayName.Length - 7);
-            }
-            objectNameText.text = displayName;
-        }
+        UpdateInfoText();
         UpdateCanvasVisibility();
     }
 
@@ -72,54 +66,67 @@ public class EditorCameraTrigger : MonoBehaviour
     }
 
     #if UNITY_EDITOR
-    private void InitializePrefab()
+    private void LoadPrefab()
     {
+        // Skip if already initialized or invalid name
+        if (prefabToSpawn != null || gameObject.name.Length < 3) return;
+
+        // First ensure we have a template
+        if (templatePrefab == null)
+        {
+            Debug.LogError($"No template prefab assigned for {gameObject.name}! Please assign a template prefab first.");
+            return;
+        }
+
         string objectName = gameObject.name;
-        
-        // Remove (Clone) if present
         if (objectName.EndsWith("(Clone)"))
         {
             objectName = objectName.Substring(0, objectName.Length - 7);
         }
         
-        if (objectName.Length < 3) return;
-
-        // Remove the first 3 characters (e.g., "01-")
         string baseNumber = objectName.Substring(3);
-        contentPrefabName = baseNumber + "_content";
+        string prefabPath = Path.Combine(prefabFolderPath, baseNumber + "_content.prefab");
 
-        // Ensure the folder exists
-        if (!Directory.Exists(prefabFolderPath))
+        // First try to load an existing prefab
+        prefabToSpawn = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+        if (prefabToSpawn != null)
         {
-            Directory.CreateDirectory(prefabFolderPath);
+            return; // Use existing prefab
         }
 
-        // Check if prefab exists
-        string prefabPath = Path.Combine(prefabFolderPath, contentPrefabName + ".prefab");
-        GameObject existingPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
-
-        if (existingPrefab == null)
+        // Create directory if needed
+        string directory = Path.GetDirectoryName(prefabPath);
+        if (!Directory.Exists(directory))
         {
-            // Create new empty prefab
-            GameObject tempObj = new GameObject(contentPrefabName);
-            
-            // Create the prefab
-            GameObject newPrefab = PrefabUtility.SaveAsPrefabAsset(tempObj, prefabPath);
-            DestroyImmediate(tempObj);
-
-            if (newPrefab != null)
-            {
-                Debug.Log($"Created new prefab: {prefabPath}");
-                prefabToSpawn = newPrefab;
-            }
-        }
-        else
-        {
-            prefabToSpawn = existingPrefab;
+            Directory.CreateDirectory(directory);
         }
 
-        // Refresh the asset database
-        AssetDatabase.Refresh();
+        // Get the template path
+        string templatePath = AssetDatabase.GetAssetPath(templatePrefab);
+        if (string.IsNullOrEmpty(templatePath))
+        {
+            Debug.LogError($"Template prefab has no valid path: {templatePrefab.name}");
+            return;
+        }
+
+        // Copy the template prefab directly
+        bool success = AssetDatabase.CopyAsset(templatePath, prefabPath);
+        if (!success)
+        {
+            Debug.LogError($"Failed to copy template prefab from {templatePath} to {prefabPath}");
+            return;
+        }
+
+        AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+        prefabToSpawn = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+        
+        if (prefabToSpawn == null)
+        {
+            Debug.LogError($"Failed to load copied prefab at {prefabPath}");
+            return;
+        }
+
+        Debug.Log($"Successfully created new prefab from template: {prefabPath}");
     }
     #endif
 
@@ -144,27 +151,21 @@ public class EditorCameraTrigger : MonoBehaviour
                 if (prefabToSpawn != null && spawnedInstance == null)
                 {
                     Transform parentTransform = FindCorrectParent();
-                    spawnedInstance = Instantiate(prefabToSpawn, parentTransform.position, parentTransform.rotation, parentTransform);
-                    // Remove (Clone) from the name
-                    if (spawnedInstance.name.EndsWith("(Clone)"))
+                    spawnedInstance = (GameObject)PrefabUtility.InstantiatePrefab(prefabToSpawn, parentTransform);
+                    if (spawnedInstance != null)
                     {
-                        spawnedInstance.name = spawnedInstance.name.Substring(0, spawnedInstance.name.Length - 7);
+                        spawnedInstance.transform.position = parentTransform.position;
+                        spawnedInstance.transform.rotation = parentTransform.rotation;
                     }
                 }
             }
             else
             {
-                if (spawnedInstance != null)
-                {
-                    Destroy(spawnedInstance);
-                    spawnedInstance = null;
-                }
+                DestroySpawnedInstance();
             }
 
             UpdateCanvasVisibility();
         }
-
-        debugStatus = $"Camera in trigger: {cameraInTrigger}";
     }
 
     private void UpdateCanvasVisibility()
@@ -206,81 +207,69 @@ public class EditorCameraTrigger : MonoBehaviour
     }
 
     #if UNITY_EDITOR
-    private void OnEditorUpdate()
+private void OnEditorUpdate()
+{
+    // Frühe Ausführungsabbrüche für offensichtliche Fälle
+    if (Application.isPlaying || !EditorWindow.focusedWindow) return;
+
+    // Cache den Window-Typ-Check
+    bool isSceneViewFocused = EditorWindow.focusedWindow.GetType().Name == "SceneView";
+    if (!isSceneViewFocused) return;
+
+    // Throttle updates
+    double currentTime = EditorApplication.timeSinceStartup;
+    if (currentTime - lastUpdateTime < UPDATE_INTERVAL)
     {
-        // Throttle updates to reduce CPU usage
-        double currentTime = EditorApplication.timeSinceStartup;
-        if (currentTime - lastUpdateTime < UPDATE_INTERVAL)
-        {
-            return;
-        }
-        lastUpdateTime = currentTime;
+        return;
+    }
 
-        if (!Application.isPlaying && SceneView.lastActiveSceneView?.camera != null)
-        {
-            var camera = SceneView.lastActiveSceneView.camera;
-            targetPosition = camera.transform.position;
-            
-            Collider collider = GetComponent<Collider>();
-            if (collider == null) return;
+    // Cache SceneView reference
+    var sceneView = SceneView.lastActiveSceneView;
+    if (sceneView?.camera == null) return;
 
-            bool isCurrentlyInside = collider.bounds.Contains(targetPosition);
+    // Cache Collider reference
+    var collider = GetComponent<Collider>();
+    if (collider == null) return;
+
+    lastUpdateTime = currentTime;
+    targetPosition = sceneView.camera.transform.position;
+    
+    // Führe Bounds-Check nur durch, wenn sich die Position signifikant geändert hat
+    if (Vector3.Distance(targetPosition, lastCheckedPosition) > 0.1f)
+    {
+        lastCheckedPosition = targetPosition;
+        bool isCurrentlyInside = collider.bounds.Contains(targetPosition);
+        
+        if (isCurrentlyInside != isInsideCollider)
+        {
+            isTriggerActive = isCurrentlyInside;
             
-            if (isCurrentlyInside != isInsideCollider)
+            if (isCurrentlyInside && prefabToSpawn != null && spawnedInstance == null)
             {
-                isTriggerActive = isCurrentlyInside;
-                debugStatus = $"Inside: {isCurrentlyInside}, Previous: {isInsideCollider}, HasPrefab: {prefabToSpawn != null}, Instance: {spawnedInstance != null}";
-                
-                if (isCurrentlyInside && prefabToSpawn != null && spawnedInstance == null)
-                {
-                    CreatePrefabInstance();
-                }
-                else if (!isCurrentlyInside)
-                {
-                    DestroySpawnedInstance();
-                }
-                
-                isInsideCollider = isCurrentlyInside;
-                UpdateCanvasVisibility();
-
-                // Only mark dirty when there's an actual change
-                if (Selection.activeGameObject == gameObject)
-                {
-                    EditorUtility.SetDirty(this);
-                }
+                CreatePrefabInstance();
             }
+            else if (!isCurrentlyInside && spawnedInstance != null)
+            {
+                DestroySpawnedInstance();
+            }
+            
+            isInsideCollider = isCurrentlyInside;
+            UpdateCanvasVisibility();
         }
     }
+}
 
     private void CreatePrefabInstance()
     {
-        try
-        {
-            if (prefabToSpawn == null) return;
+        if (prefabToSpawn == null) return;
 
-            GameObject prefabAsset = PrefabUtility.GetCorrespondingObjectFromSource(prefabToSpawn) ?? prefabToSpawn;
-            spawnedInstance = (GameObject)PrefabUtility.InstantiatePrefab(prefabAsset);
-            
-            if (spawnedInstance != null)
-            {
-                Transform parentTransform = FindCorrectParent();
-                spawnedInstance.transform.SetParent(parentTransform, false);
-                spawnedInstance.transform.position = parentTransform.position;
-                spawnedInstance.transform.rotation = parentTransform.rotation;
-                
-                // Remove (Clone) from the spawned instance name
-                if (spawnedInstance.name.EndsWith("(Clone)"))
-                {
-                    spawnedInstance.name = spawnedInstance.name.Substring(0, spawnedInstance.name.Length - 7);
-                }
-                
-                Undo.RegisterCreatedObjectUndo(spawnedInstance, "Spawn Prefab in Editor");
-                EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
-            }
-        }
-        catch (System.Exception e)
+        Transform parentTransform = FindCorrectParent();
+        spawnedInstance = (GameObject)PrefabUtility.InstantiatePrefab(prefabToSpawn, parentTransform);
+        if (spawnedInstance != null)
         {
-            Debug.LogError($"Error instantiating prefab: {e.Message}");
+            spawnedInstance.transform.position = parentTransform.position;
+            spawnedInstance.transform.rotation = parentTransform.rotation;
+            Undo.RegisterCreatedObjectUndo(spawnedInstance, "Spawn Prefab in Editor");
         }
     }
 
@@ -295,7 +284,6 @@ public class EditorCameraTrigger : MonoBehaviour
             else
             {
                 Undo.DestroyObjectImmediate(spawnedInstance);
-                EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
             }
             spawnedInstance = null;
         }
@@ -309,10 +297,8 @@ public class EditorCameraTrigger : MonoBehaviour
             currentName = currentName.Substring(0, currentName.Length - 7);
         }
 
-        // Get the base name (without 01-)
         string baseName = currentName.Substring(3);
         
-        // Look for parent in the scene
         Transform sceneRoot = gameObject.scene.GetRootGameObjects()[0].transform;
         foreach (Transform child in sceneRoot)
         {
@@ -328,26 +314,26 @@ public class EditorCameraTrigger : MonoBehaviour
             }
         }
         
-        return transform; // Fallback to current transform if no matching parent found
+        return transform;
     }
 
-    private void OnValidate()
+    private void UpdateInfoText()
     {
-        #if UNITY_EDITOR
-        if (prefabToSpawn != null && PrefabUtility.GetPrefabAssetType(prefabToSpawn) == PrefabAssetType.NotAPrefab)
-        {
-            Debug.LogWarning($"Warning: {prefabToSpawn.name} should be a prefab!");
-        }
-
         if (objectNameText != null)
         {
             string displayName = gameObject.name;
-            if (Application.isPlaying && displayName.EndsWith("(Clone)"))
+            if (displayName.EndsWith("(Clone)"))
             {
                 displayName = displayName.Substring(0, displayName.Length - 7);
             }
             objectNameText.text = displayName;
         }
+    }
+
+    private void OnValidate()
+    {
+        #if UNITY_EDITOR
+        UpdateInfoText();
         #endif
     }
     #endif

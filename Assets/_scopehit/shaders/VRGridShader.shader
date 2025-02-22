@@ -21,6 +21,7 @@ Shader "Custom/WireframeGrid"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_instancing // VR Optimierung
             #include "UnityCG.cginc"
             
             struct appdata
@@ -28,6 +29,7 @@ Shader "Custom/WireframeGrid"
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
                 float3 normal : NORMAL;
+                UNITY_VERTEX_INPUT_INSTANCE_ID // VR Optimierung
             };
             
             struct v2f
@@ -37,6 +39,7 @@ Shader "Custom/WireframeGrid"
                 float3 worldPos : TEXCOORD1;
                 float3 normal : NORMAL;
                 float3 centerPos : TEXCOORD2;
+                UNITY_VERTEX_OUTPUT_STEREO // VR Optimierung
             };
             
             float _GridSize;
@@ -46,9 +49,13 @@ Shader "Custom/WireframeGrid"
             v2f vert (appdata v)
             {
                 v2f o;
+                UNITY_SETUP_INSTANCE_ID(v); // VR Optimierung
+                UNITY_INITIALIZE_OUTPUT(v2f, o);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o); // VR Optimierung
+                
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-                o.centerPos = mul(unity_ObjectToWorld, float4(0,0,0,1)).xyz; // Position des Parent-Objects
+                o.centerPos = mul(unity_ObjectToWorld, float4(0,0,0,1)).xyz;
                 o.normal = UnityObjectToWorldNormal(v.normal);
                 o.uv = v.uv;
                 return o;

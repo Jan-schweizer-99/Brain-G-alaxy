@@ -14,73 +14,70 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   topics:
   - id: 0
-    mainTopic: Vektorrechnung
-    topic: Vektorrechnung
-    section: Grundlagen
+    mainTopic: Vector Algebra Fach
+    topic: Vector Algebra Fach
+    section: Fach
     tags:
-    - definition
-    - eigenschaften
+    - vectoralgebra
+    - fach
   - id: 1
-    mainTopic: Vektorrechnung
-    topic: Definition
+    mainTopic: Vector Algebra Fach
+    topic: Grundlagen
     section: Grundlagen
     tags:
     - basics
     - definition
     - konzept
   - id: 2
-    mainTopic: Vektorrechnung
+    mainTopic: Vector Algebra Fach
     topic: Eigenschaften
     section: Grundlagen
     tags:
     - basics
     - eigenschaften
-    - bezeichnung
-    - grundlegier
-    - skalar
     - dimension
   - id: 3
-    mainTopic: Vektorrechnung
-    topic: Dimension
+    mainTopic: Vector Algebra Fach
+    topic: Richtung
     section: Grundlagen
     tags:
     - basics
-    - dimension
-    - raum
-    - kartesianrahmen
+    - richtung
+    - orientierung
   - id: 4
-    mainTopic: Vektorrechnung
-    topic: Skalare Multiplikation
-    section: Operationen
-    tags:
-    - rechnen
-    - multiplikation
-    - skalar
-  - id: 5
-    mainTopic: Vektorrechnung
+    mainTopic: Vector Algebra Fach
     topic: Addition
     section: Operationen
     tags:
     - rechnen
     - addition
     - grundrechenart
-  - id: 6
-    mainTopic: Vektorrechnung
+  - id: 5
+    mainTopic: Vector Algebra Fach
     topic: Subtraktion
     section: Operationen
     tags:
     - rechnen
     - subtraktion
     - grundrechenart
+  - id: 6
+    mainTopic: Vector Algebra Fach
+    topic: Skalare Multiplikation
+    section: Operationen
+    tags:
+    - rechnen
+    - multiplikation
+    - skalar
   - id: 7
-    mainTopic: Vektorrechnung
-    topic: Vektor-Multiplikation
+    mainTopic: Vector Algebra Fach
+    topic: Vektormultiplikation
     section: ErweitertesRechnen
     tags:
+    - rechnen
     - multiplikation
     - vektor
   - id: 8
-    mainTopic: Vektorrechnung
+    mainTopic: Vector Algebra Fach
     topic: Inneres Produkt
     section: ErweitertesRechnen
     tags:
@@ -88,7 +85,7 @@ MonoBehaviour:
     - inner
     - skalar
   - id: 9
-    mainTopic: Vektorrechnung
+    mainTopic: Vector Algebra Fach
     topic: "\xC4u\xDFeres Produkt"
     section: ErweitertesRechnen
     tags:
@@ -96,10 +93,23 @@ MonoBehaviour:
     - outer
     - vektor
   - id: 10
-    mainTopic: Vektorrechnung
-    topic: Anwendung
+    mainTopic: Vector Algebra Fach
+    topic: Geometrische Anwendung
     section: Anwendung
     tags:
     - geometrie
+    - praxis
+  - id: 11
+    mainTopic: Vector Algebra Fach
+    topic: Physikalische Anwendung
+    section: Anwendung
+    tags:
     - physik
+    - praxis
+  - id: 12
+    mainTopic: Vector Algebra Fach
+    topic: Informatik Anwendung
+    section: Anwendung
+    tags:
     - informatik
+    - praxis

@@ -1,0 +1,12 @@
+Font: STIX Two Math  Style: Regular
+Point Size: 54   SP/PD Ratio: 9,3%
+
+Characters included: 133/133
+Missing characters: 0
+Excluded characters: 0
+
+Characters missing from font file:
+----------------------------------------
+
+Characters excluded from packing:
+----------------------------------------
