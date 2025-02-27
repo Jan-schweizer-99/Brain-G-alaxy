@@ -37,31 +37,31 @@ public class CustomBaseEditor : Editor
         return reference != null && reference.DisableCustomEditor;
     }
 
-    protected static EditorSettings LoadEditorSettings()
+protected static EditorSettings LoadEditorSettings()
+{
+    if (editorSettings == null)
     {
+        string settingsPath = "Assets/Editor/Settings/EditorSettings.asset";
+        editorSettings = AssetDatabase.LoadAssetAtPath<EditorSettings>(settingsPath);
+        
         if (editorSettings == null)
         {
-            string settingsPath = "Assets/Editor/Settings/EditorSettings.asset";
-            editorSettings = AssetDatabase.LoadAssetAtPath<EditorSettings>(settingsPath);
+            Debug.LogWarning($"EditorSettings not found at {settingsPath}. Creating new one...");
             
-            if (editorSettings == null)
-            {
-                Debug.LogWarning($"EditorSettings not found at {settingsPath}. Creating new one...");
-                
-                // Ensure directories exist
-                CreateDirectoryIfNotExists("Assets/Editor");
-                CreateDirectoryIfNotExists("Assets/Editor/Settings");
-                
-                // Create new settings asset
-                editorSettings = ScriptableObject.CreateInstance<EditorSettings>();
-                AssetDatabase.CreateAsset(editorSettings, settingsPath);
-                AssetDatabase.SaveAssets();
-                
-                Debug.Log("Created new EditorSettings asset.");
-            }
+            // Ensure directories exist
+            CreateDirectoryIfNotExists("Assets/Editor");
+            CreateDirectoryIfNotExists("Assets/Editor/Settings");
+            
+            // Create new settings asset
+            editorSettings = ScriptableObject.CreateInstance<EditorSettings>();
+            AssetDatabase.CreateAsset(editorSettings, settingsPath);
+            AssetDatabase.SaveAssets();
+            
+            Debug.Log("Created new EditorSettings asset.");
         }
-        return editorSettings;
     }
+    return editorSettings;
+}
 
     private static void CreateDirectoryIfNotExists(string path)
     {

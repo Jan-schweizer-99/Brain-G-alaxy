@@ -68,5 +68,9 @@ MonoBehaviour:
     logoPath: Assets/Editor/Backgroundlogos/Island.png
     iconPath: Assets/Editor/Backgroundlogos/Island_icon.png
     description: Movement and object tracking system configuration
+  - styleName: Island
+    backgroundColor: {r: 0.10323429, g: 1, b: 0, a: 0.5}
+    logoPath: Assets/Editor/Backgroundlogos/Island.png
+    iconPath: Assets/Editor/Backgroundlogos/Island_icon.png
+    description: Movement and object tracking system configuration
   additionalBackgroundHeight: 0
-  hasBeenInitialized: 1
