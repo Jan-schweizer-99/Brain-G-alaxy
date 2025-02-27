@@ -69,3 +69,4 @@ MonoBehaviour:
     iconPath: Assets/Editor/Backgroundlogos/Island_icon.png
     description: Movement and object tracking system configuration
   additionalBackgroundHeight: 0
+  hasBeenInitialized: 1

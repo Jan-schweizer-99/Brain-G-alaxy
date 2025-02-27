@@ -54,3 +54,4 @@ MonoBehaviour:
     iconPath: Assets/Editor/Backgroundlogos/Tracking_icon.png
     description: Network Style
   additionalBackgroundHeight: 0
+  hasBeenInitialized: 1
