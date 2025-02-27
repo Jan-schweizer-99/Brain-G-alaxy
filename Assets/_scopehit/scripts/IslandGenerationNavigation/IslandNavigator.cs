@@ -4,6 +4,7 @@ using Unity.XR.CoreUtils;
 using UnityEngine.InputSystem;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEngine.Events;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -27,6 +28,11 @@ public class IslandNavigator : MonoBehaviour
     public ConicalSpiralIslandPlacer spiralPlacer;
     public XROrigin xrOrigin;
     public ActionBasedContinuousMoveProvider continuousMoveProvider;
+    
+    [Header("Events")]
+    [HideInInspector] public UnityEvent<int> OnIslandChanged;
+    [HideInInspector] public UnityEvent<int> OnIslandSelected;
+    [HideInInspector] public UnityEvent<bool> OnFlightModeToggled;
     
     private Transform[] islandPositions;
     [SerializeField]
@@ -66,6 +72,16 @@ public class IslandNavigator : MonoBehaviour
     {
         EnableInputActions();
         RefreshIslands();
+        
+        // Initialisiere Events falls sie noch null sind
+        if (OnIslandChanged == null)
+            OnIslandChanged = new UnityEvent<int>();
+            
+        if (OnIslandSelected == null)
+            OnIslandSelected = new UnityEvent<int>();
+            
+        if (OnFlightModeToggled == null)
+            OnFlightModeToggled = new UnityEvent<bool>();
     }
 
     public void RefreshIslands()
@@ -187,33 +203,58 @@ public class IslandNavigator : MonoBehaviour
     
     public void OnNextIsland(InputAction.CallbackContext context)
     {
+        NextIsland();
+    }
+    
+    public void OnPreviousIsland(InputAction.CallbackContext context)
+    {
+        PreviousIsland();
+    }
+    
+    public void OnSelectIsland(InputAction.CallbackContext context)
+    {
+        SelectCurrentIsland();
+    }
+    
+    public void OnToggleFly(InputAction.CallbackContext context)
+    {
+        ToggleFlightMode();
+    }
+    
+    // Neue öffentliche Methoden, die von anderen Scripts aufgerufen werden können
+    
+    public void NextIsland()
+    {
         if (!isTransitioning && !isFlightTransitioning && 
             islandPositions != null && currentIslandIndex < islandPositions.Length - 1)
         {
             StartTransition(currentIslandIndex + 1);
+            OnIslandChanged?.Invoke(currentIslandIndex);
         }
     }
     
-    public void OnPreviousIsland(InputAction.CallbackContext context)
+    public void PreviousIsland()
     {
         if (!isTransitioning && !isFlightTransitioning && 
             islandPositions != null && currentIslandIndex > 0)
         {
             StartTransition(currentIslandIndex - 1);
+            OnIslandChanged?.Invoke(currentIslandIndex);
         }
     }
     
-    public void OnSelectIsland(InputAction.CallbackContext context)
+    public void SelectCurrentIsland()
     {
         if (!isTransitioning && !isFlightTransitioning && !continuousMoveProvider.enableFly && 
             islandPositions != null && currentIslandIndex < islandPositions.Length)
         {
             Debug.Log($"Level {currentIslandIndex + 1} selected!");
+            OnIslandSelected?.Invoke(currentIslandIndex);
             // Hier Ihre Level-Load-Logik implementieren
         }
     }
     
-    public void OnToggleFly(InputAction.CallbackContext context)
+    public void ToggleFlightMode()
     {
         if (!isTransitioning && !isFlightTransitioning && 
             continuousMoveProvider != null && islandPositions != null && 
@@ -230,6 +271,8 @@ public class IslandNavigator : MonoBehaviour
             // Setze die Bewegungseinstellungen
             continuousMoveProvider.enableFly = newFlyState;
             continuousMoveProvider.useGravity = !newFlyState;
+            
+            OnFlightModeToggled?.Invoke(newFlyState);
         }
     }
     
@@ -250,19 +293,19 @@ public class IslandNavigator : MonoBehaviour
         #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (Input.GetKeyDown(KeyCode.Keypad1))
         {
-            OnPreviousIsland(new InputAction.CallbackContext());
+            PreviousIsland();
         }
         if (Input.GetKeyDown(KeyCode.Keypad2))
         {
-            OnSelectIsland(new InputAction.CallbackContext());
+            SelectCurrentIsland();
         }
         if (Input.GetKeyDown(KeyCode.Keypad3))
         {
-            OnNextIsland(new InputAction.CallbackContext());
+            NextIsland();
         }
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            OnToggleFly(new InputAction.CallbackContext());
+            ToggleFlightMode();
         }
         #endif
 
@@ -378,6 +421,8 @@ public class IslandNavigator : MonoBehaviour
             
             Vector3 directionToCenter = Vector3.zero - new Vector3(targetPosition.x, 0f, targetPosition.z);
             xrOrigin.transform.rotation = Quaternion.LookRotation(directionToCenter);
+            
+            OnIslandChanged?.Invoke(currentIslandIndex);
         }
     }
 }
@@ -401,24 +446,24 @@ public class IslandNavigatorEditor : Editor
             
             if (GUILayout.Button("Previous Island"))
             {
-                navigator.OnPreviousIsland(new InputAction.CallbackContext());
+                navigator.PreviousIsland();
             }
 
             if (GUILayout.Button("Next Island"))
             {
-                navigator.OnNextIsland(new InputAction.CallbackContext());
+                navigator.NextIsland();
             }
             
             EditorGUILayout.EndHorizontal();
 
             if (GUILayout.Button("Toggle Flight Mode"))
             {
-                navigator.OnToggleFly(new InputAction.CallbackContext());
+                navigator.ToggleFlightMode();
             }
 
             if (GUILayout.Button("Select Current Island"))
             {
-                navigator.OnSelectIsland(new InputAction.CallbackContext());
+                navigator.SelectCurrentIsland();
             }
 
             EditorGUILayout.Space(5);

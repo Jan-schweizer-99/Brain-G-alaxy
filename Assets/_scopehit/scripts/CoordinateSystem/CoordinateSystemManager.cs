@@ -53,12 +53,36 @@ public class CoordinateSystemManager : MonoBehaviour
     private PlaneGridGenerator gridGenerator;
     private List<AxisGizmoGenerator> gizmoGenerators = new List<AxisGizmoGenerator>();
     private List<GameObject> instantiatedPrefabs = new List<GameObject>();
+    
+    // Neue Variable zum Verfolgen, ob das System bereits initialisiert wurde
+    private bool hasBeenInitialized = false;
+
+    void Awake()
+    {
+        // Beim ersten Hinzufügen des Prefabs zur Szene wird diese Methode aufgerufen
+        if (!hasBeenInitialized)
+        {
+            InitializeSystem();
+            UpdateSystem();
+            hasBeenInitialized = true;
+        }
+    }
 
     void Start()
     {
         if (!Application.isPlaying)
         {
             InitializeSystem();
+            UpdateSystem();
+        }
+    }
+    
+    // OnEnable wird auch aufgerufen, wenn das GameObject in der Szene aktiviert wird
+    void OnEnable()
+    {
+        // Stellen Sie sicher, dass das System aktualisiert wird, wenn das GameObject aktiviert wird
+        if (!Application.isPlaying)
+        {
             UpdateSystem();
         }
     }
@@ -425,4 +449,33 @@ public class CoordinateSystemManagerEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 }
+
+#if UNITY_EDITOR
+// Füge einen Editor-Callback hinzu, um bei der Prefab-Instanzierung in der Szene zu reagieren
+[InitializeOnLoad]
+public class PrefabInstanceCallback
+{
+    static PrefabInstanceCallback()
+    {
+        // Registriere den Listener für den Callback beim Editor-Start
+        EditorApplication.hierarchyChanged += OnHierarchyChanged;
+    }
+    
+    private static void OnHierarchyChanged()
+    {
+        // Suche nach allen CoordinateSystemManager Komponenten in der aktuellen Szene
+        CoordinateSystemManager[] managers = Object.FindObjectsOfType<CoordinateSystemManager>();
+        foreach (var manager in managers)
+        {
+            // Prüfe, ob dies ein neu hinzugefügtes Prefab ist
+            bool isPrefabInstance = PrefabUtility.IsPartOfPrefabInstance(manager.gameObject);
+            if (isPrefabInstance)
+            {
+                // Rufe UpdateSystem auf dem Manager auf
+                manager.UpdateSystem();
+            }
+        }
+    }
+}
+#endif
 #endif

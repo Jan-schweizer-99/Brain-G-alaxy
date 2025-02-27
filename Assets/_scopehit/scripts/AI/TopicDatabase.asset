@@ -14,102 +14,44 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   topics:
   - id: 0
-    mainTopic: Vector Algebra Fach
-    topic: Vector Algebra Fach
-    section: Fach
+    mainTopic: "Milchstra\xDFe"
+    topic: "Milchstra\xDFe"
+    section: Basics
     tags:
-    - vectoralgebra
-    - fach
+    - basics
+    - milkyway
+    explanation: 
   - id: 1
-    mainTopic: Vector Algebra Fach
-    topic: Grundlagen
-    section: Grundlagen
+    mainTopic: "Milchstra\xDFe"
+    topic: Entstehungsgeschichte
+    section: Development
     tags:
-    - basics
-    - definition
-    - konzept
+    - history
+    - formation
+    explanation: 
   - id: 2
-    mainTopic: Vector Algebra Fach
-    topic: Eigenschaften
-    section: Grundlagen
+    mainTopic: "Milchstra\xDFe"
+    topic: Komposition
+    section: Composition
     tags:
-    - basics
-    - eigenschaften
-    - dimension
+    - components
+    - stars
+    - gas
+    - darkmatter
+    explanation: 
   - id: 3
-    mainTopic: Vector Algebra Fach
-    topic: Richtung
-    section: Grundlagen
+    mainTopic: "Milchstra\xDFe"
+    topic: Gestalt
+    section: Shape
     tags:
-    - basics
-    - richtung
-    - orientierung
+    - spiralarms
+    - galaxycenter
+    explanation: 
   - id: 4
-    mainTopic: Vector Algebra Fach
-    topic: Addition
-    section: Operationen
+    mainTopic: "Milchstra\xDFe"
+    topic: Astronomische Methode
+    section: AstronomicalMethods
     tags:
-    - rechnen
-    - addition
-    - grundrechenart
-  - id: 5
-    mainTopic: Vector Algebra Fach
-    topic: Subtraktion
-    section: Operationen
-    tags:
-    - rechnen
-    - subtraktion
-    - grundrechenart
-  - id: 6
-    mainTopic: Vector Algebra Fach
-    topic: Skalare Multiplikation
-    section: Operationen
-    tags:
-    - rechnen
-    - multiplikation
-    - skalar
-  - id: 7
-    mainTopic: Vector Algebra Fach
-    topic: Vektormultiplikation
-    section: ErweitertesRechnen
-    tags:
-    - rechnen
-    - multiplikation
-    - vektor
-  - id: 8
-    mainTopic: Vector Algebra Fach
-    topic: Inneres Produkt
-    section: ErweitertesRechnen
-    tags:
-    - produkt
-    - inner
-    - skalar
-  - id: 9
-    mainTopic: Vector Algebra Fach
-    topic: "\xC4u\xDFeres Produkt"
-    section: ErweitertesRechnen
-    tags:
-    - produkt
-    - outer
-    - vektor
-  - id: 10
-    mainTopic: Vector Algebra Fach
-    topic: Geometrische Anwendung
-    section: Anwendung
-    tags:
-    - geometrie
-    - praxis
-  - id: 11
-    mainTopic: Vector Algebra Fach
-    topic: Physikalische Anwendung
-    section: Anwendung
-    tags:
-    - physik
-    - praxis
-  - id: 12
-    mainTopic: Vector Algebra Fach
-    topic: Informatik Anwendung
-    section: Anwendung
-    tags:
-    - informatik
-    - praxis
+    - observations
+    - telescopes
+    explanation: 
