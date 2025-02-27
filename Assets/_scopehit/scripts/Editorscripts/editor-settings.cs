@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor;
 #endif
 
-[CreateAssetMenu(fileName = "EditorSettings", menuName = "Editor/Custom Editor Settings")]
+// Kein CreateAssetMenu Attribut mehr, damit keine automatische Asset-Erstellung möglich ist
 public class EditorSettings : ScriptableObject 
 {
     public static System.Action OnSettingsChanged;
