@@ -1,6 +1,6 @@
 # VR-Lernanwendung mit KI-gestützter Generierung
 
-![Platzhalter für das Logo der Anwendung](./!github%20Content/Anwendung.PNG)
+![Platzhalter für das Logo der Anwendung](./!github%20Content/Logo.png)
 
 Dieses Projekt ist eine KI-gestützte VR-Lernanwendung, die automatisch eine prozedurale Galaxie mit schwebenden Inseln generiert. Die Inhalte der Inseln werden mithilfe einer lokal laufenden KI erstellt. Das System kombiniert Virtual Reality, künstliche Intelligenz und ein Video-on-Demand-Feature zu einer interaktiven Lernumgebung.
 
@@ -27,9 +27,7 @@ Dieses Projekt ist eine KI-gestützte VR-Lernanwendung, die automatisch eine pro
 ### 1. Benötigte Programme und Abhängigkeiten
 
 - **Node.js** (optional für das Debugging-Tool): [https://nodejs.org/en](https://nodejs.org/en)
-- **Python** (zur Erzeugung von YouTube-JSON und ggf. zusätzlicher Skripte): [https://www.python.org](https://www.python.org)
-- **Ollama** (zum Ausführen der KI-Modelle lokal): [https://ollama.com/download/windows](https://ollama.com/download/windows)
-- **Deepseek Models** (lokale KI-Modelle): [https://ollama.com/library/deepseek-r1](https://ollama.com/library/deepseek-r1)
+- **Python** (zur Erzeugung von YouTube-JSON-Dateien und ggf. zusätzlichen Skripten): [https://www.python.org](https://www.python.org)
 
 ### 2. Python einrichten
 1. **Python und pip aktualisieren (empfohlen):**
@@ -46,25 +44,8 @@ Dieses Projekt ist eine KI-gestützte VR-Lernanwendung, die automatisch eine pro
    ```bash
    pip install google-auth google-auth-oauthlib google-auth-httplib2
    ```
-   > *Nur erforderlich, wenn Sie OAuth-geschützte Daten abrufen möchten.*
 
-### 3. Ollama & Deepseek-Modell installieren und starten
-1. **Ollama herunterladen:**
-   - [Ollama Windows Installer](https://ollama.com/download/windows)
-2. **Deepseek-Modell verwenden:**
-   - Laden Sie das gewünschte Modell, z. B. `deepseek-r1:8b` oder `deepseek-r1:14b`. Meistens reicht:
-     ```bash
-     ollama run deepseek-r1:8b
-     ```
-     oder
-     ```bash
-     ollama run deepseek-r1:14b
-     ```
-   > *Weitere Installationshinweise finden Sie im [Video ab Minute 14:55](https://youtu.be/3chfe8Q9rtQ?si=gsZIRdGRRPtP03bN&t=891).*
-3. **Server-Batchdatei starten:**
-   - Im Projekt unter `Assets\_scopehit\scripts\AI\start-ollama.bat` finden Sie eine Batchdatei, um Ollama lokal zu starten.
-
-### 4. Unity-Projekt öffnen
+### 3. Unity-Projekt öffnen
 1. **Projekt klonen oder entpacken:**
    ```bash
    git clone <repository-url>
@@ -75,23 +56,19 @@ Dieses Projekt ist eine KI-gestützte VR-Lernanwendung, die automatisch eine pro
 3. **Abhängigkeiten im Unity Package Manager prüfen:**
    - Stellen Sie sicher, dass alle erforderlichen Pakete (z. B. XR Interaction Toolkit) installiert sind.
 
-### 5. Wichtige Skripte & Dateien
+### 4. Wichtige Skripte & Dateien
 - **YouTube Library Skript:** `Assets\_scopehit\scripts\YoutubeLibrary\YoutubeAPI.py`
   - Erzeugt aus der YouTube-API eine JSON-Datei mit Thumbnails, Titeln etc.
 - **SVG-Konverter:** `Assets\Editor\Backgroundlogos\svg-converter-web.html`
   - Wandelt SVG-Dateien in PNG-Bilder um, um Icons anzupassen.
-- **Ollama Integration:** `Assets\_scopehit\scripts\AI\OllamaClient.cs` (Client-Logik)
 - **Node.js WebSocket:** `Assets\_scopehit\scripts\nodejs_debug` (Debugging-Tool)
 
 ---
 
 ## Screenshots & weitere Bilder
 
-### Anwendung.png
+### Anwendung
 ![Anwendung](./!github%20Content/Anwendung.PNG)
-
-### Banner "Bild4.png"
-![Banner](./!github%20Content/Bild4.png)
 
 ### Hochschullogo
 ![Hochschule Furtwangen Logo](./!github%20Content/Hochschule_Furtwangen_HFU_logo.png)
