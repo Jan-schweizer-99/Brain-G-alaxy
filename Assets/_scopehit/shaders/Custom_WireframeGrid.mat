@@ -31,6 +31,6 @@ Material:
     - _LineWidth: 0.00842
     - _UseLocalSpace: 1
     m_Colors:
-    - _GridColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.050980393}
+    - _GridColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.2627451}
     - _ObjectScale: {r: 0.46, g: 0.46, b: 0.46, a: 0}
   m_BuildTextureStacks: []
