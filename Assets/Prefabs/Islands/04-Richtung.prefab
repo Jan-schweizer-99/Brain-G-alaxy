@@ -205,7 +205,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Basic_island
+  m_text: 04-Richtung
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -500,7 +500,7 @@ GameObject:
   - component: {fileID: 7784061661835677477}
   - component: {fileID: 8836101249985464340}
   m_Layer: 0
-  m_Name: Basic_island
+  m_Name: 04-Richtung
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -574,12 +574,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabFolderPath: Assets/Prefabs/IslandContent
   templatePrefab: {fileID: 2224560525254615588, guid: bd434b5e44029084ea9dc4f96059044f, type: 3}
-  prefabToSpawn: {fileID: 0}
+  prefabToSpawn: {fileID: 2224560525254615588, guid: 8ca137f33230af942b1e63bbc38d4f5e, type: 3}
   infoCanvas: {fileID: 7079051369723661666}
   objectNameText: {fileID: 7196497654038021541}
   gizmoColor: {r: 0, g: 1, b: 0, a: 0.3}
   gizmoWireColor: {r: 0, g: 1, b: 0, a: 1}
-  targetPosition: {x: -92.80678, y: 44.081802, z: -10.709305}
+  targetPosition: {x: 13.0603285, y: 33.50374, z: 51.288628}
   isTriggerActive: 0
   debugStatus: 'Inside: False, Previous: True, HasPrefab: False, Instance: False'
 --- !u!114 &8836101249985464340
@@ -594,7 +594,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9ca037795d6bc04e9b7754875d22f78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _topicId: -1
+  _topicId: 4
 --- !u!1 &7176627723222630348
 GameObject:
   m_ObjectHideFlags: 0

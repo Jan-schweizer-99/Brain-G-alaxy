@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 8872693888040738097}
   - component: {fileID: 5742709004035924787}
   m_Layer: 0
-  m_Name: Orange_Fire_VFX
+  m_Name: green_Fire_VFX
   m_TagString: Untagged
-  m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 3936346786652291628, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -99,7 +99,7 @@ VisualEffect:
         m_Overridden: 1
     m_Vector4f:
       m_Array:
-      - m_Value: {x: 42.179142, y: 3.091665, z: 0, w: 0}
+      - m_Value: {x: 0.010222235, y: 1.0592737, z: 0, w: 0}
         m_Name: Flame_Color
         m_Overridden: 1
     m_Uint:

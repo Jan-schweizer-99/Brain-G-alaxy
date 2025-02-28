@@ -1929,7 +1929,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1178512087679584963}
   m_Layer: 0
-  m_Name: Basic_island_content
+  m_Name: Subtraktion_content
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7905,10 +7905,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1178512087679584963}
     m_Modifications:
-    - target: {fileID: 233970606348086515, guid: 97180afca352d074c81c7e507050550c, type: 3}
-      propertyPath: imageUrl
-      value: https://i.ytimg.com/vi/NRGTwmQaTwA/maxresdefault.jpg
-      objectReference: {fileID: 0}
     - target: {fileID: 1786011984464665151, guid: 97180afca352d074c81c7e507050550c, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -7928,11 +7924,11 @@ PrefabInstance:
     - target: {fileID: 4317510186243525259, guid: 97180afca352d074c81c7e507050550c, type: 3}
       propertyPath: avatarLoader
       value: 
-      objectReference: {fileID: 6543878768194994600}
+      objectReference: {fileID: 0}
     - target: {fileID: 4317510186243525259, guid: 97180afca352d074c81c7e507050550c, type: 3}
       propertyPath: bannerLoader
       value: 
-      objectReference: {fileID: 1471961986734085665}
+      objectReference: {fileID: 0}
     - target: {fileID: 5248245130535283825, guid: 97180afca352d074c81c7e507050550c, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -7940,10 +7936,6 @@ PrefabInstance:
     - target: {fileID: 5248245130535283825, guid: 97180afca352d074c81c7e507050550c, type: 3}
       propertyPath: m_WasSpriteAssigned
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6895277262000617490, guid: 97180afca352d074c81c7e507050550c, type: 3}
-      propertyPath: selectedVideoIndex
-      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7507394866347559442, guid: 97180afca352d074c81c7e507050550c, type: 3}
       propertyPath: m_Name
@@ -8005,39 +7997,13 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 9144358104649805438, guid: 97180afca352d074c81c7e507050550c, type: 3}
-      propertyPath: m_Name
-      value: Banner
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97180afca352d074c81c7e507050550c, type: 3}
---- !u!114 &1471961986734085665 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4679717948043970942, guid: 97180afca352d074c81c7e507050550c, type: 3}
-  m_PrefabInstance: {fileID: 6096966855141334879}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68db34aea21a21a45855a2c35c8a36f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &2777485457852176747 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8221139991801103924, guid: 97180afca352d074c81c7e507050550c, type: 3}
   m_PrefabInstance: {fileID: 6096966855141334879}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &6543878768194994600 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1030268906708426487, guid: 97180afca352d074c81c7e507050550c, type: 3}
-  m_PrefabInstance: {fileID: 6096966855141334879}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68db34aea21a21a45855a2c35c8a36f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

@@ -4,15 +4,10 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Door_activator
   - LeftControllerTag
   - RightControllerTag
-  - Dart
   - Tutorial
   - positionManager
-  - FaceJumpscare
-  - Enemy
-  - Ghosting_Dart
   - Message
   - Name
   layers:
@@ -24,7 +19,7 @@ TagManager:
   - UI
   - Character
   - Post Processing
-  - No PostProcessing
+  - 
   - Draw
   - 
   - 

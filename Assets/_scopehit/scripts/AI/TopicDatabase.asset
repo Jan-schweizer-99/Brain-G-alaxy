@@ -14,44 +14,145 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   topics:
   - id: 0
-    mainTopic: "Milchstra\xDFe"
-    topic: "Milchstra\xDFe"
-    section: Basics
+    mainTopic: Vektoren
+    topic: Vektoren
+    section: Grundlagen
+    tags:
+    - vektor
+    - definition
+    - zustand
+    explanation: "\n\nNat\xFCrlich! Hier ist eine einfache Erkl\xE4rung des Themas
+      **VEKTOR** f\xFCr Sch\xFCler:\n\n### Was ist ein Vektor?\n\nEin Vektor ist
+      etwas, das\uB450\u65B9\u9762 hat:\n1. **Gr\xF6\xDFe (L\xE4nge):** Das kann
+      eine Zahl wie der Kilometer oder der Zentimeter sein.\n2. **Richtung:** Die
+      Richtung wird oft mit einem Buchstaben oder einem Pfeilkombinationen angezeigt.\n\n###
+      Einfache Beispiele:\n- **Auf einer Karte:** Wenn du dich auf dem Feld bist
+      und nach Norden gehst, dein Vektor w\xE4re: 0 km in der Gr\xF6\xDFe und die
+      Richtung \"Nord.\"\n- **Automatisches Lenkrad:** Es zeigt dir nicht nur die
+      Stelle (wie Osten), sondern auch die Geschwindigkeit oder den Verkehrssaldo.\n\n###
+      Warum sind Vektoren wichtig?\nVektoren helfen uns, Dinge in Raum und Zeit zu
+      messen. Sie werden in vielen Bereichen wie Sport, Kochkunst, Medizin und Technologie
+      eingesetzt.\n\n### Einfaches Experiment:\n- Stelle dir eine Fl\xE4che vor und
+      stelle deine Position auf der Fl\xE4che mit dem Vektor \"0,0\" ein.\n- Wenn
+      du nach Ost laufst, deinen Vektor ist (1,0).\n- Wenn du nach Nord laufst, dein
+      Vektor ist (0,1).\n\nDamit kannst du sehen, wie Vektoren dir helfen, Orte und
+      Bewegungen darzustellen!\n\n### Fazit:\nVektoren sind likester, was unseren
+      Standort oder unseres Wachens in Raum und Zeit definiert. Sie sind ein grundlegendes
+      Werkzeug in der Mathematik und im Leben! \U0001F60A"
+  - id: 1
+    mainTopic: Vektoren
+    topic: Definition
+    section: Grundlagen
     tags:
     - basics
-    - milkyway
-    explanation: 
-  - id: 1
-    mainTopic: "Milchstra\xDFe"
-    topic: Entstehungsgeschichte
-    section: Development
-    tags:
-    - history
-    - formation
+    - vektraum
+    - zustand
     explanation: 
   - id: 2
-    mainTopic: "Milchstra\xDFe"
-    topic: Komposition
-    section: Composition
+    mainTopic: Vektoren
+    topic: Eigenschaften
+    section: Grundlagen
     tags:
-    - components
-    - stars
-    - gas
-    - darkmatter
+    - properties
+    - orthogonale
+    - skalare
     explanation: 
   - id: 3
-    mainTopic: "Milchstra\xDFe"
-    topic: Gestalt
-    section: Shape
+    mainTopic: Vektoren
+    topic: Dimension
+    section: Grundlagen
     tags:
-    - spiralarms
-    - galaxycenter
+    - dimension
+    - basis
+    - raum
     explanation: 
   - id: 4
-    mainTopic: "Milchstra\xDFe"
-    topic: Astronomische Methode
-    section: AstronomicalMethods
+    mainTopic: Vektoren
+    topic: Richtung
+    section: Grundlagen
     tags:
-    - observations
-    - telescopes
+    - directions
+    - orientierung
+    - phasor
+    explanation: 
+  - id: 5
+    mainTopic: Vektoren
+    topic: Addition
+    section: Operationen
+    tags:
+    - rechnen
+    - addition
+    - grundrechenart
+    explanation: 
+  - id: 6
+    mainTopic: Vektoren
+    topic: Subtraktion
+    section: Operationen
+    tags:
+    - rechnen
+    - subtraktion
+    - grundrechenart
+    explanation: 
+  - id: 7
+    mainTopic: Vektoren
+    topic: Skalare Multiplikation
+    section: Operationen
+    tags:
+    - rechnen
+    - multiplikation
+    - skalar
+    explanation: 
+  - id: 8
+    mainTopic: Vektoren
+    topic: Vektormultiplikation
+    section: ErweitertesRechnen
+    tags:
+    - rechnen
+    - multiplikation
+    - vektor
+    explanation: 
+  - id: 9
+    mainTopic: Vektoren
+    topic: Inneres Produkt
+    section: ErweitertesRechnen
+    tags:
+    - produkt
+    - inner
+    - skalar
+    explanation: 
+  - id: 10
+    mainTopic: Vektoren
+    topic: "\xC4u\xDFeres Produkt"
+    section: ErweitertesRechnen
+    tags:
+    - produkt
+    - outer
+    - vektor
+    explanation: 
+  - id: 11
+    mainTopic: Vektoren
+    topic: Geometrische Anwendung
+    section: Anwendung
+    tags:
+    - geometrie
+    - praxis
+    - raum
+    explanation: 
+  - id: 12
+    mainTopic: Vektoren
+    topic: Physikalische Anwendung
+    section: Anwendung
+    tags:
+    - physik
+    - zustand
+    - quantummechanik
+    explanation: 
+  - id: 13
+    mainTopic: Vektoren
+    topic: Informatik Anwendung
+    section: Anwendung
+    tags:
+    - informatik
+    - algorithmen
+    - kodierung
     explanation: 

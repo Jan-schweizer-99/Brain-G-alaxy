@@ -1929,7 +1929,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1178512087679584963}
   m_Layer: 0
-  m_Name: Basic_island_content
+  m_Name: ic_island_content
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

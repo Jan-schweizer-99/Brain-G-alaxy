@@ -116,6 +116,9 @@ public class InvertedIslandDrawer : MonoBehaviour
 
         rayLine.SetPosition(0, Vector3.zero);
         rayLine.SetPosition(1, new Vector3(0, 0, rayDistance));
+        
+        // Ray nur anzeigen, wenn das Zeichnen aktiviert ist
+        rayLine.enabled = isDrawingEnabled;
     }
 
     private void CreateDrawingLine()
@@ -135,7 +138,17 @@ public class InvertedIslandDrawer : MonoBehaviour
 
     private void Update()
     {
-        UpdateRayVisualization();
+        // Stelle sicher, dass der Ray nur angezeigt wird, wenn das Zeichnen aktiviert ist
+        if (rayLine != null)
+        {
+            rayLine.enabled = isDrawingEnabled;
+        }
+        
+        // Ray-Visualisierung nur aktualisieren, wenn das Zeichnen aktiviert ist
+        if (isDrawingEnabled)
+        {
+            UpdateRayVisualization();
+        }
 
         if (!isDrawingEnabled || directInteractor == null) return;
 
@@ -605,6 +618,17 @@ int innerCurrent = GetClosestInnerRingPoint(i, innerRingPoints, currentPoint, ce
         {
             Vector3 pos = drawingSurface.transform.position;
             drawingSurface.transform.position = new Vector3(pos.x, height, pos.z);
+        }
+    }
+
+    public void SetDrawingEnabled(bool enabled)
+    {
+        isDrawingEnabled = enabled;
+        
+        // Auch den Ray entsprechend ein-/ausschalten
+        if (rayLine != null)
+        {
+            rayLine.enabled = enabled;
         }
     }
 }
